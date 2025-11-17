@@ -40,7 +40,7 @@ const PatientInfo = () => {
   const tabs = [
     { label: "Readings", path: "/Reading" },
     { label: "Examination", path: "/examinationDoc" },
-    { label: "Case History", path: "/CaseHistory" },
+    { label: "Case History", path: "//CaseHistory" },
     { label: "Draw", path: "/Draw" },
   ];
   // Check if consultation already exists for this appointment

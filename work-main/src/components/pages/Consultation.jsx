@@ -84,14 +84,14 @@ export default function Consultation() {
 
   const handleStartConsultation = () => {
     if (selectedPatient) {
-      navigate("/reading", {
+      navigate("/Reading", {
         state: {
           patient: selectedPatient,
           appointment: selectedPatient,
         },
       });
     } else {
-      navigate("/reading");
+      navigate("/Reading");
     }
   };
 

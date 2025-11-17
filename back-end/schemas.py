@@ -761,7 +761,7 @@ class KitBase(BaseModel):
     kitId: Optional[str] = None
     kitName: Optional[str] = None
     reason: Optional[str] = None
-    medicines: List[MedicineBase] = []
+    medicines:Optional[ List[MedicineBase]] = []
 
 
 

@@ -10,6 +10,8 @@ const PrescribeMedi = ({ onClose }) => {
   const [category, setCategory] = useState("ALL");
   const [dosage, setDosage] = useState("");
   const [itemName, setItemName] = useState("");
+  const [selectedKit, setSelectedKit] = useState("");
+
   const [form, setForm] = useState({
     frequency: "",
     duration: "",
@@ -41,6 +43,25 @@ const PrescribeMedi = ({ onClose }) => {
     "1-1-0",
     "NIGHT ONE TUBE",
   ];
+
+  const [kits, setKits] = useState([]);
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  fetch("http://127.0.0.1:8000/kits", {
+    headers: { Authorization: token ? `Bearer ${token}` : "" },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data)) setKits(data);
+      else setKits([]);
+    })
+    .catch((err) => {
+      console.error("Failed to fetch kits:", err);
+      setKits([]);
+    });
+}, []);
+
 
   // const navigate = useNavigate();
 
@@ -349,13 +370,19 @@ const PrescribeMedi = ({ onClose }) => {
               Select Kit
             </h1>
             <div className="w-full flex justify-start">
-              <select className="w-[80%] border border-gray-300 rounded-lg p-4 text-lg focus:ring-2 focus:ring-[#7E4363] outline-none">
-                <option value="">Select a kit</option>
-                <option value="Basic">Basic Kit</option>
-                <option value="Post Surgery">Post Surgery Kit</option>
-                <option value="Glaucoma">Glaucoma Kit</option>
-                <option value="Pediatric">Pediatric Kit</option>
-              </select>
+              <select
+  className="w-[80%] border border-gray-300 rounded-lg p-4 text-lg focus:ring-2 focus:ring-[#7E4363] outline-none"
+  value={selectedKit} // you can add a state for the selected kit
+  onChange={(e) => setSelectedKit(e.target.value)}
+>
+  <option value="">Select a kit</option>
+  {kits.map((kit) => (
+    <option key={kit.kitId} value={kit.kitId}>
+      {kit.kitName}
+    </option>
+  ))}
+</select>
+
             </div>
 
             <div className="flex justify-center mt-10">

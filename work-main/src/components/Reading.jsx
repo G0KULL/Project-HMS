@@ -28,9 +28,9 @@ const PatientInfo = () => {
   const token = localStorage.getItem("token");
 
   const tabs = [
-    { label: "Readings", path: "/reading" },
+    { label: "Readings", path: "/Reading" },
     { label: "Examination", path: "/examinationDoc" },
-    { label: "Case History", path: "/CaseHistory" },
+    { label: "Case History", path:"/CaseHistory" },
     { label: "Draw", path: "/Draw" },
   ];
 
