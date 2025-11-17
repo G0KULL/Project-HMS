@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Undo2, Trash2, Save, PenTool, Circle, Square, Minus, Eraser } from "lucide-react";
-import PatientInfor from "./PatientInfor";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Draw() {
   const navigate = useNavigate();
@@ -14,6 +13,21 @@ export default function Draw() {
   const [strokeColor, setStrokeColor] = useState("#000000");
   const [lineWidth, setLineWidth] = useState(2);
   const [tempImage, setTempImage] = useState(null);
+
+  const [patientData, setPatientData] = useState(null);
+  const location = useLocation();
+  const navState = location.state || {};
+  const appointmentInfo = navState.appointment;
+
+if (!appointmentInfo?.id) {
+  setError(
+    "No appointment data found. Please navigate from a valid patient record."
+  );
+  setLoading(false);
+  return;
+}
+
+
 
   // initialize canvas
   useEffect(() => {
@@ -126,24 +140,29 @@ export default function Draw() {
 
   return (
     <div className="max-w-8xl mx-auto p-6 space-y-6">
-      <PatientInfor />
 
       {/* Tabs */}
       <div className="flex gap-4 mb-6 justify-start">
-        {tabs.map((tab, i) => (
-          <button
-            key={i}
-            onClick={() => navigate(tab.path)}
-            className={`px-10 py-3 rounded-full  font-medium ${
-              tab.label === "Draw"
-                ? "bg-[#F7DACD] "
-                : " border-2 border-gray-500  hover:bg-[#F7DACD] "
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+  {tabs.map((tab, i) => (
+    <button
+      key={i}
+      onClick={() => {
+        // Only pass state if it exists
+        navigate(tab.path, { state: navState || undefined });
+      }}
+      className={`px-10 py-3 rounded-full font-medium ${
+        tab.label === "Draw"
+          ? "bg-[#F7DACD]"
+          : "border-2 border-gray-500 hover:bg-[#F7DACD]"
+      }`}
+    >
+      {tab.label}
+    </button>
+  ))}
+</div>
+
+
+
 
       {/* Drawing Panel */}
       <div className="p-6  rounded-2xl  space-y-4">

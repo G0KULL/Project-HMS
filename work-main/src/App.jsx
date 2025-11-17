@@ -13,8 +13,6 @@ import Diagnosis from "./components/Diagnosis";
 import Procedure from "./components/Procedure";
 import OtCounselling from "./components/OtCounselling";
 import PrescribeMedi from "./components/PrescribeMedi";
-import MedicinKit from "./components/MedicinKit";
-import Instruciton from "./components/Instruction";
 import CaseHistory from "./components/CaseHistory";
 import Draw from "./components/Draw";
 import ConsultList from "./components/Pages/OptoConsultation/ConsultList";
@@ -92,8 +90,8 @@ function App() {
         <Route path="/procedure" element={<Procedure />} />
         <Route path="/otCounselling" element={<OtCounselling />} />
         <Route path="/prescribeMedi" element={<PrescribeMedi />} />
-        <Route path="/medicinKit" element={<MedicinKit />} />
-        <Route path="/Instruction" element={<Instruciton />} />
+        {/* <Route path="/medicinKit" element={<MedicinKit />} /> */}
+        {/* <Route path="/Instruction" element={<Instruciton />} /> */}
         <Route path="/CaseHistory" element={<CaseHistory />} />
         <Route path="/Draw" element={<Draw />} />
         <Route path="/ConsultList" element={<ConsultList />} />

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Edit, Trash2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import MedicinKit from "./MedicinKit";
-import Instruciton from "./Instruction";
+
 
 const PrescribeMedi = ({ onClose }) => {
   const [selectedHeader, setSelectedHeader] = useState("");
+  const [showKitModal, setShowKitModal] = useState(false);
+  const [showInstructionPopup, setShowInstructionPopup] = useState(false); // ✅ added missing state
   const [category, setCategory] = useState("ALL");
   const [dosage, setDosage] = useState("");
   const [itemName, setItemName] = useState("");
@@ -41,15 +42,16 @@ const PrescribeMedi = ({ onClose }) => {
     "NIGHT ONE TUBE",
   ];
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  // Make body unscrollable while modal is open
+  // ✅ Manage background scroll for both modals
   useEffect(() => {
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+      showKitModal || showInstructionPopup ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, []);
+  }, [showKitModal, showInstructionPopup]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -83,7 +85,6 @@ const PrescribeMedi = ({ onClose }) => {
       setMedicines([...medicines, newMedicine]);
     }
 
-    // Reset
     setCategory("ALL");
     setDosage("");
     setItemName("");
@@ -118,34 +119,33 @@ const PrescribeMedi = ({ onClose }) => {
     setMedicines(updated);
   };
 
-  // ✅ Robust close function
   const close = () => {
     if (typeof onClose === "function") {
       onClose();
     } else {
-      navigate(-1); // fallback if onClose is missing
+      // navigate(-1);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-start pt-20">
-      {/* Backdrop */}
+      {/* Background Blur */}
       <div
-        className="absolute inset-0 backdrop-blur-sm bg-gray-200/30 z-0"
-        onClick={close} // uses robust close
+        className="absolute inset-0 backdrop-blur-md bg-gray-300/30 z-0"
+        onClick={close}
       />
 
-      {/* Modal content */}
+      {/* Main Modal */}
       <div
         className="relative z-10 w-full max-w-8xl p-6 bg-white rounded-2xl overflow-y-auto max-h-[90vh] space-y-6 shadow-lg"
-        onClick={(e) => e.stopPropagation()} // prevent backdrop close
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">PRESCRIBE MEDICINE</h1>
           <button
             type="button"
-            onClick={close} // robust close
+            onClick={close}
             className="text-gray-600 hover:text-red-600 transition"
           >
             <X size={26} />
@@ -159,12 +159,12 @@ const PrescribeMedi = ({ onClose }) => {
               key={header}
               onClick={() => {
                 setSelectedHeader(header);
-                if (header === "Kit") navigate("/MedicinKit");
-                if (header === "Special instruction") navigate("/Instruciton");
+                if (header === "Kit") setShowKitModal(true);
+                if (header === "Special instruction") setShowInstructionPopup(true);
               }}
               className={`flex-1 text-center px-4 py-2 cursor-pointer text-base md:text-xl font-semibold border rounded-full transition-all ${
                 selectedHeader === header
-                  ? "bg-[#F7DACD] "
+                  ? "bg-[#F7DACD]"
                   : "bg-white text-black"
               }`}
             >
@@ -172,6 +172,7 @@ const PrescribeMedi = ({ onClose }) => {
             </div>
           ))}
         </div>
+
         {/* Input Section */}
         <div className="p-6 bg-[#F7DACD] rounded-2xl space-y-6">
           {/* Row 1 */}
@@ -264,7 +265,7 @@ const PrescribeMedi = ({ onClose }) => {
           </button>
           <button
             type="button"
-            onClick={close} // robust close
+            onClick={close}
             className="bg-red-500 text-white px-6 py-2 rounded-full flex items-center gap-2 hover:bg-red-600 text-sm md:text-base"
           >
             Cancel
@@ -332,6 +333,133 @@ const PrescribeMedi = ({ onClose }) => {
           </table>
         </div>
       </div>
+
+      {/* ✅ Kit Popup Modal */}
+      {showKitModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-md bg-black/40">
+          <div className="relative w-[95%] md:w-[900px] bg-white rounded-2xl shadow-2xl p-6">
+            <button
+              onClick={() => setShowKitModal(false)}
+              className="absolute top-3 right-3 text-gray-600 hover:text-red-600"
+            >
+              <X size={22} />
+            </button>
+
+            <h1 className="text-3xl font-bold mb-6 text-start text-gray-800">
+              Select Kit
+            </h1>
+            <div className="w-full flex justify-start">
+              <select className="w-[80%] border border-gray-300 rounded-lg p-4 text-lg focus:ring-2 focus:ring-[#7E4363] outline-none">
+                <option value="">Select a kit</option>
+                <option value="Basic">Basic Kit</option>
+                <option value="Post Surgery">Post Surgery Kit</option>
+                <option value="Glaucoma">Glaucoma Kit</option>
+                <option value="Pediatric">Pediatric Kit</option>
+              </select>
+            </div>
+
+            <div className="flex justify-center mt-10">
+              <button
+                onClick={() => setShowKitModal(false)}
+                className="bg-gray-800 text-white px-12 py-3 rounded-full text-lg font-semibold hover:bg-black transition"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Special Instruction Popup */}
+      {showInstructionPopup && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white w-[95%] md:w-[900px] max-h-[90vh] rounded-2xl shadow-2xl p-8 relative overflow-hidden">
+            <button
+              onClick={() => setShowInstructionPopup(false)}
+              className="absolute top-3 right-3 text-gray-600 hover:text-black"
+            >
+              <X size={22} />
+            </button>
+
+            <h1 className="text-xl md:text-2xl font-bold mb-4">
+              SPECIAL INSTRUCTION
+            </h1>
+
+            <div className="overflow-y-auto max-h-[60vh] pr-2">
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="w-full md:w-1/2 p-4 rounded-lg">
+                  {[
+                    "AVOID DUST",
+                    "CONTROL OF DIABETES",
+                    "SHAKE WELL",
+                    "COTTON",
+                    "HOT FOMENTATION",
+                    "INJ 1",
+                    "BRING MEDICINE PRESCRIPTION IN NEXT VISIT",
+                    "DO NOT RUB EYES",
+                    "CAUTIONED ABOUT STEROIDS",
+                    "WARM FOMENTATION",
+                    "PET ANIMALS",
+                    "CHALAZION",
+                    "MORNING 10 OR EVENING 5",
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center mb-2">
+                      <input
+                        type="checkbox"
+                        className="mr-2 w-5 h-5 accent-green-600"
+                      />
+                      <label>{item}</label>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="w-full md:w-1/2 p-4 rounded-lg">
+                  {[
+                    "INJ2",
+                    "HOT FOMENTATION",
+                    "USE PROTECTION GLASSES",
+                    "MASSAGE",
+                    "PLANT",
+                    "ALLERGY",
+                    "MORNING 9",
+                    "ALLERGY ENG",
+                    "LID MASSAGE",
+                    "CONTINUE OTHER PRESCRIBED MEDICINES",
+                    "OINTMENT",
+                    "DUST",
+                    "COOL EYE MASK",
+                    "3 TIMES HALF TEASPOON",
+                    "COLD FOMENTATION",
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center mb-2">
+                      <input
+                        type="checkbox"
+                        className="mr-2 w-5 h-5 accent-green-600"
+                      />
+                      <label>{item}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-4 mt-6">
+              <button
+                onClick={() => setShowInstructionPopup(false)}
+                className="bg-green-500 text-white px-5 py-2 rounded-full hover:bg-green-600"
+              >
+                Submit
+              </button>
+              <button
+                onClick={() => setShowInstructionPopup(false)}
+                className="bg-red-500 text-white px-5 py-2 rounded-full hover:bg-red-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
