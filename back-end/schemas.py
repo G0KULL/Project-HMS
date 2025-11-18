@@ -774,37 +774,30 @@ class ConsultationResponse(ConsultationBase):
 
 
 class SupplierBase(BaseModel):
-    Name: str
-    Gender: Optional[GenderEnum] = None
-    dob: Optional[date] = None
-    regno: Optional[str] = None
-    bloodgroup: Optional[str] = None
-    age: Optional[int] = None
-    contact: Optional[str] = None
-    email: Optional[EmailStr] = None
+    companyname: str
+    description: Optional[str] = None
+    contactPerson: str
+    email: EmailStr
+    phone: Optional[str] = None
+    gst_number: Optional[str] = None
+    website: Optional[str] = None
     address: Optional[str] = None
-
-    aadhaar: str
     license: str
-
 
 class SupplierCreate(SupplierBase):
     user_id: int
 
 
 class SupplierUpdate(BaseModel):
-    Name: Optional[str] = None
-    Gender: Optional[GenderEnum] = None
-    dob: Optional[date] = None
-
-    regno: Optional[str] = None
-    bloodgroup: Optional[str] = None
-    age: Optional[int] = None
-    contact: Optional[str] = None
-    email: Optional[EmailStr] = None
+    
+    companyname: Optional[str] = None
+    description: Optional[str] = None
+    contactPerson: Optional[str] = None
+    email:Optional [EmailStr]= None
+    phone: Optional[str] = None
+    website: Optional[str] = None
     address: Optional[str] = None
-
-    aadhaar: Optional[str] = None
+    gst_number: Optional[str] = None
     license: Optional[str] = None
 
 

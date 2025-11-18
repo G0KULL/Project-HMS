@@ -574,19 +574,15 @@ class Supplier(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    Name = Column(String, nullable=False)
-    Gender = Column(Enum(GenderEnum), nullable=True)
-    dob = Column(Date, nullable=True)
-    
-    regno = Column(String, nullable=True)
-    bloodgroup = Column(String, nullable=True)
-    age = Column(Integer, nullable=True)
-    contact = Column(String, nullable=True)
-    email = Column(String, nullable=True)
+    companyname = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    contactPerson = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    website = Column(String, nullable=True)
     address = Column(Text, nullable=True)
-    aadhaar = Column(String, nullable=False)
-    license = Column(String, nullable=False)
-    
+    license= Column(String, nullable=True)
+    gst_number = Column(String, nullable=True)
     
     
     

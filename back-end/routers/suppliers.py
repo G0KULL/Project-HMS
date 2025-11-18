@@ -11,7 +11,6 @@ from crud import (
     update_supplier,    
     delete_supplier
 )
-import datetime
 
 
 
@@ -19,47 +18,40 @@ router = APIRouter(prefix="/suppliers", tags=["Suppliers"])
 
 @router.post("/", response_model=dict)
 async def create_new_supplier(
-    Name: str = Form(...),
-    Gender: str = Form(...),
-    dob: str = Form(...),
-    regno: str = Form(...),
-    bloodgroup: str = Form(...),
-    age: int = Form(...),
-    contact: str = Form(...),
+    companyname: str = Form(...),
+    description: str = Form(...),
+    contactPerson: str = Form(...),
+    phone: str = Form(...),
     email: str = Form(...),
+    website: str = Form(...),
     address: str = Form(...),
-    user_id: int = Form(...),
-    aadhaar: UploadFile = File(...),
+    gst_number: str = Form(...),
     license: UploadFile = File(...),
+    user_id: int = Form(...),
     db: Session = Depends(get_db)
 ):
-    
-    dob_obj = datetime.datetime.strptime(dob, "%Y-%m-%d").date()
+
+    print("Received supplier creation request")
 
     # Save files to disk
-    aadhaar_path = f"uploads/{aadhaar.filename}"
     license_path = f"uploads/{license.filename}"
-
-    with open(aadhaar_path, "wb") as f:
-        f.write(await aadhaar.read())
 
     with open(license_path, "wb") as f:
         f.write(await license.read())
 
     # Create Supplier in DB
     supplier = Supplier(
-        Name=Name,
-        Gender=Gender,
-        dob=dob_obj,
-        regno=regno,
-        bloodgroup=bloodgroup,
-        age=age,
-        contact=contact,
+        companyname=companyname,
+        description=description,
+        contactPerson=contactPerson,
+        phone=phone,
         email=email,
         address=address,
-        user_id=user_id,
-        aadhaar=aadhaar_path,
-        license=license_path
+        gst_number=gst_number,
+        website=website,  
+        license=license_path,
+        user_id=user_id
+        
     )
 
     db.add(supplier)

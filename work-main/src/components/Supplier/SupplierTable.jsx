@@ -1,30 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SupplierTable = () => {
   const navigate = useNavigate();
+  const [suppliers, setSuppliers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [suppliers, setSuppliers] = useState([
-    {
-      id: "SUP001",
-      role: "Distributor",
-      name: "John Doe",
-      phone: "+91-345678",
-      email: "john.doe@medsupply.com",
-      address: "123 Medical St, City, State",
-      status: true,
-    },
-    {
-      id: "SUP002",
-      role: "Wholesaler",
-      name: "Jane Smith",
-      phone: "+91-987654",
-      email: "jane.smith@medsupply.com",
-      address: "456 Pharma Ave, City, State",
-      status: false,
-    },
-  ]);
+  const fetchSuppliers = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/suppliers/");
+      const data = await response.json();
+      setSuppliers(data);
+    } catch (error) {
+      console.error("Error fetching suppliers:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
+  
   // Toggle status function
   const toggleStatus = (id) => {
     setSuppliers((prev) =>

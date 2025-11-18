@@ -2,80 +2,25 @@ import React, { useState } from "react";
 
 const AddSupplierForm = () => {
   const [formData, setFormData] = useState({
-    Name: "",
-    Gender: "",
-    dob: "",
-    regno: "",
-    bloodgroup: "",
-    age: "",
-    contact: "",
+    companyname: "",
+    phone: "",
     email: "",
     address: "",
-    aadhaar: null,
+    gst_number: "",
     license: null,
+    description: "",
+    contactPerson: "",
+    website: "",
   });
 
-    const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({});
   const [showPopup, setShowPopup] = useState(false); // state for popup
 
   const API_URL = "http://localhost:8000/suppliers/";
 
-  const validateFields = (formData) => {
-  let errors = {};
-
-  // Required check
-  const requiredFields = [
-    "company_name",
-    "supplier_name",
-    "phone",
-    "email",
-    "gst_number",
-    "pan_number",
-    "address",
-  ];
-
-  requiredFields.forEach((field) => {
-    if (!formData[field] || formData[field].trim() === "") {
-      errors[field] = "This field is required";
-    }
-  });
-
-  // Phone: 10 digits only
-  if (formData.phone && !/^[6-9]\d{9}$/.test(formData.phone)) {
-    errors.phone = "Enter a valid 10-digit mobile number";
-  }
-
-  // Email format
-  if (
-    formData.email &&
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-  ) {
-    errors.email = "Enter a valid email address";
-  }
-
-  // GST number format: 15 chars, uppercase letters + digits
-  if (
-    formData.gst_number &&
-    !/^[0-9A-Z]{15}$/.test(formData.gst_number)
-  ) {
-    errors.gst_number = "Invalid GST Number (must be 15 characters)";
-  }
-
-  // PAN format: 5 letters + 4 digits + 1 letter → ABCDE1234F
-  if (
-    formData.pan_number &&
-    !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan_number)
-  ) {
-    errors.pan_number = "Invalid PAN Number (Format: ABCDE1234F)";
-  }
-
-  return errors;
-};
-
-
   // Handle input change
   const handleChange = (e) => {
-    const { name, value ,files} = e.target;
+    const { name, value, files } = e.target;
     if (files) {
       setFormData({ ...formData, [name]: files[0] });
     } else {
@@ -83,11 +28,10 @@ const AddSupplierForm = () => {
     }
 
     setErrors({ ...errors, [name]: "" });
-
   };
 
   // Handle submit
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     let newErrors = {};
 
@@ -111,10 +55,10 @@ const AddSupplierForm = () => {
         data.append(key, formData[key]);
       });
 
-      // Also pass user_id (required in backend)
-      data.append("user_id", 1); // Replace with actual logged in user ID
+      const userId = parseInt(localStorage.getItem("user_id") || "0");
+      data.append("user_id", userId);
 
-      const response = await  fetch(API_URL, {
+      const response = await fetch(API_URL, {
         method: "POST",
         body: data,
       });
@@ -133,17 +77,15 @@ const AddSupplierForm = () => {
   // Handle cancel
   const handleCancel = () => {
     setFormData({
-      Name: "",
-      Gender: "",
-      dob: "",
-      regno: "",
-      bloodgroup: "",
-      age: "",
-      contact: "",
+      companyname: "",
+      phone: "",
       email: "",
       address: "",
-      aadhaar: null,
+      gst_number: "",
+      description: "",
+      contactPerson: "",
       license: null,
+      website: "",
     });
     setErrors({});
   };
@@ -152,114 +94,51 @@ const AddSupplierForm = () => {
     <div className="p-6 max-w-8xl mx-auto">
       <h1 className="text-3xl font-bold  mb-6">Add Supplier</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-lg bg-[#F7DACD] p-10">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 rounded-lg bg-[#F7DACD] p-10"
+      >
         {/* Row 1 */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
-            <label className="block font-medium">Full Name*</label>
+            <label className="block font-medium">Company Name*</label>
             <input
               type="text"
-              name="Name"
-              value={formData["Name"]}
+              name="companyname"
+              value={formData["companyname"]}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors["Name"] && (
-              <p className="text-red-500 text-sm">{errors["Name"]}</p>
+            {errors["companyname"] && (
+              <p className="text-red-500 text-sm">{errors["companyname"]}</p>
             )}
           </div>
 
           <div>
-            <label className="block font-medium">Gender*</label>
-            <select
-              name="Gender"
-              value={formData.Gender}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Others">Others</option>
-              <option value="Prefer not to say">Prefer not to say</option>
-            </select>
-            {errors.Gender && (
-              <p className="text-red-500 text-sm">{errors.Gender}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block font-medium">Date of Birth*</label>
-            <input
-              type="date"
-              name="dob"
-              value={formData["dob"]}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
-            />
-            {errors["dob"] && (
-              <p className="text-red-500 text-sm">{errors["dob"]}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block font-medium">Registration No.*</label>
+            <label className="block font-medium">Company Description</label>
             <input
               type="text"
-              name="regno"
-              value={formData["regno"]}
+              name="description"
+              value={formData["description"]}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors["regno"] && (
-              <p className="text-red-500 text-sm">
-                {errors["regno"]}
-              </p>
+            {errors["description"] && (
+              <p className="text-red-500 text-sm">{errors["description"]}</p>
             )}
           </div>
-        </div>
 
-        {/* Row 2 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
-            <label className="block font-medium">Blood Group</label>
+            <label className="block font-medium">Contact Person*</label>
             <input
               type="text"
-              name="bloodgroup"
-              value={formData["bloodgroup"]}
+              name="contactPerson"
+              value={formData["contactPerson"]}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors["bloodgroup"] && (
-              <p className="text-red-500 text-sm">{errors["bloodgroup"]}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block font-medium">Age</label>
-            <input
-              type="number"
-              name="age"
-              value={formData["age"]}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
-            />
-            {errors["age"] && (
-              <p className="text-red-500 text-sm">{errors["age"]}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block font-medium">Contact Number</label>
-            <input
-              type="text"
-              name="contact"
-              value={formData["contact"]}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
-            />
-            {errors["contact"] && (
-              <p className="text-red-500 text-sm">{errors["contact"]}</p>
+            {errors["contactPerson"] && (
+              <p className="text-red-500 text-sm">{errors["contactPerson"]}</p>
             )}
           </div>
 
@@ -274,6 +153,50 @@ const AddSupplierForm = () => {
             />
             {errors["email"] && (
               <p className="text-red-500 text-sm">{errors["email"]}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Row 2 */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div>
+            <label className="block font-medium">Contact Number</label>
+            <input
+              type="text"
+              name="phone"
+              value={formData["phone"]}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-3 py-2"
+            />
+            {errors["phone"] && (
+              <p className="text-red-500 text-sm">{errors["phone"]}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block font-medium">Website</label>
+            <input
+              type="text"
+              name="website"
+              value={formData["website"]}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-2"
+            />
+            {errors["website"] && (
+              <p className="text-red-500 text-sm">{errors["website"]}</p>
+            )}
+          </div>
+          <div>
+            <label className="block font-medium">GST Number</label>
+            <input
+              type="text"
+              name="gst_number"
+              value={formData["gst_number"]}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-3 py-2"
+            />
+            {errors["gst_number"] && (
+              <p className="text-red-500 text-sm">{errors["gst_number"]}</p>
             )}
           </div>
         </div>
@@ -293,70 +216,45 @@ const AddSupplierForm = () => {
           )}
         </div>
 
-       {/* Row 4 - Left side 2 file uploads */}
-         {/* Row 4 - Left side 2 file uploads */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full md:w-1/2">
-  {/* Aadhaar Card Upload */}
-  <div>
-    <label className="block font-medium mb-1">Upload Aadhaar</label>
-    <label className="flex flex-col items-center justify-center border border-gray-300 rounded-lg px-3 py-6 cursor-pointer bg-white hover:bg-gray-50 text-center">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-10 w-10 text-gray-400 mb-2"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v6m0 0l-3-3m3 3l3-3M12 4v8" />
-      </svg>
-      <span className="text-gray-500 text-sm">File upload (PDF/JPG/PNG)</span>
-      <input 
-        type="file"
-        name="aadhaar"
-        accept=".pdf,.jpg,.jpeg,.png"
-        onChange={handleChange}
-        className="hidden"
-      />
-    </label>
-    {errors["aadhaar"] && (
-      <p className="text-red-500 text-sm mt-1">{errors["aadhaar"]}</p>
-    )}
-  </div>
-
-  {/* Driving License Upload */}
-  <div>
-    <label className="block font-medium mb-1">Upload Driving License</label>
-    <label className="flex flex-col items-center justify-center border border-gray-300 rounded-lg px-3 py-6 cursor-pointer bg-white hover:bg-gray-50 text-center">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-10 w-10 text-gray-400 mb-2"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v6m0 0l-3-3m3 3l3-3M12 4v8" />
-      </svg>
-      <span className="text-gray-500 text-sm">File upload (PDF/JPG/PNG)</span>
-      <input 
-        type="file"
-        name="license"
-        accept=".pdf,.jpg,.jpeg,.png"
-        onChange={handleChange}
-        className="hidden"
-      />
-    </label>
-    {errors["license"] && (
-      <p className="text-red-500 text-sm mt-1">{errors["license"]}</p>
-    )}
-  </div>
-</div>
-
-
-
-        
+        {/* Row 4 - Left side 2 file uploads */}
+        {/* Row 4 - Left side 2 file uploads */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full md:w-1/2">
+          {/* Driving License Upload */}
+          <div>
+            <label className="block font-medium mb-1">Upload Documents</label>
+            <label className="flex flex-col items-center justify-center border border-gray-300 rounded-lg px-3 py-6 cursor-pointer bg-white hover:bg-gray-50 text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-10 w-10 text-gray-400 mb-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v6m0 0l-3-3m3 3l3-3M12 4v8"
+                />
+              </svg>
+              <span className="text-gray-500 text-sm">
+                File upload (PDF/JPG/PNG)
+              </span>
+              <input
+                type="file"
+                name="license"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={handleChange}
+                className="hidden"
+              />
+            </label>
+            {errors["license"] && (
+              <p className="text-red-500 text-sm mt-1">{errors["license"]}</p>
+            )}
+          </div>
+        </div>
       </form>
 
-      
       {/* Centered Submit and Cancel buttons in 2 lines */}
       <div className="flex flex-col items-center gap-4 mt-4">
         <button
@@ -384,7 +282,9 @@ const AddSupplierForm = () => {
               alt="Success"
               className="w-40 h-40 mb-4"
             />
-            <p className="text-xl font-semibold mb-4">Supplier Added Successfully!</p>
+            <p className="text-xl font-semibold mb-4">
+              Supplier Added Successfully!
+            </p>
             <button
               onClick={() => setShowPopup(false)}
               className="bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition"
@@ -394,7 +294,6 @@ const AddSupplierForm = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
