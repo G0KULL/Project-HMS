@@ -641,6 +641,60 @@ class OtCounsellingItem(BaseModel):
     eye: Literal["Right", "Left", "Both"]
     remarks: Optional[str] = None
     consent: Optional[bool] = None
+    
+    
+# -----------------------------------------------------------
+# Medicine Schema (minimal, used in relation)
+# -----------------------------------------------------------
+class MedicineBase(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+    dosage: Optional[str] = None
+    frequency: Optional[str] = None
+    duration: Optional[str] = None
+    route: Optional[str] = None
+    medQuantity: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date:Optional[date] = None
+    
+
+class MedicineResponse(MedicineBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+        
+# -----------------------------------------------------------
+# Kit Schemas
+# -----------------------------------------------------------
+class KitBase(BaseModel):
+    company_id: Optional[int] = None
+    kitId: Optional[str] = None
+    kitName: Optional[str] = None
+    reason: Optional[str] = None
+    medicines:Optional[ List[MedicineBase]] = []
+
+
+
+# ✅ For Creating a Kit
+class KitCreate(KitBase):
+    pass
+
+
+# ✅ For Updating a Kit
+class KitUpdate(KitBase):
+    pass
+
+
+# ✅ For Reading / Returning a Kit
+class KitResponse(KitBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
 
 
 # -----------------------------
@@ -682,23 +736,11 @@ class ConsultationBase(BaseModel):
     ot_counsil: Optional[List[OtCounsellingItem]] = []
 
     # Medicine Section
-    category: Optional[str] = None
-    itemName: Optional[str] = None
-    dosage: Optional[str] = None
-    frequency: Optional[str] = None
-    duration: Optional[str] = None
-    route: Optional[str] = None
-    quantity: Optional[str] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-    
-    @field_validator('start_date', 'end_date', mode='before')
-    def empty_str_to_none(cls, v):
-        return None if v == "" else v
+    medicines : Optional[List[MedicineBase]] = []
 
     # Kit & Instruction
-    kit: Optional[str] = None
-    instruction: Optional[str] = None
+    kit: Optional[KitBase] = None
+    instruction: Optional[List[str]] = []
     
     
     extra_note: Optional[str] = None
@@ -730,54 +772,45 @@ class ConsultationResponse(ConsultationBase):
     class Config:
         orm_mode = True
 
-# -----------------------------------------------------------
-# Medicine Schema (minimal, used in relation)
-# -----------------------------------------------------------
-class MedicineBase(BaseModel):
-    name: str
-    description: Optional[str] = None
-    description: Optional[str] = None
-    dosage: Optional[str] = None
-    frequency: Optional[str] = None
-    duration: Optional[str] = None
-    route: Optional[str] = None
-    medQuantity: Optional[str] = None
-    start_date: Optional[date] = None
-    end_date:Optional[date] = None
-    
 
-class MedicineResponse(MedicineBase):
+class SupplierBase(BaseModel):
+    Name: str
+    Gender: Optional[GenderEnum] = None
+    dob: Optional[date] = None
+    regno: Optional[str] = None
+    bloodgroup: Optional[str] = None
+    age: Optional[int] = None
+    contact: Optional[str] = None
+    email: Optional[EmailStr] = None
+    address: Optional[str] = None
+
+    aadhaar: str
+    license: str
+
+
+class SupplierCreate(SupplierBase):
+    user_id: int
+
+
+class SupplierUpdate(BaseModel):
+    Name: Optional[str] = None
+    Gender: Optional[GenderEnum] = None
+    dob: Optional[date] = None
+
+    regno: Optional[str] = None
+    bloodgroup: Optional[str] = None
+    age: Optional[int] = None
+    contact: Optional[str] = None
+    email: Optional[EmailStr] = None
+    address: Optional[str] = None
+
+    aadhaar: Optional[str] = None
+    license: Optional[str] = None
+
+
+class SupplierOut(SupplierBase):
     id: int
-
-    class Config:
-        orm_mode = True
-
-
-# -----------------------------------------------------------
-# Kit Schemas
-# -----------------------------------------------------------
-class KitBase(BaseModel):
-    company_id: Optional[int] = None
-    kitId: Optional[str] = None
-    kitName: Optional[str] = None
-    reason: Optional[str] = None
-    medicines:Optional[ List[MedicineBase]] = []
-
-
-
-# ✅ For Creating a Kit
-class KitCreate(KitBase):
-    pass
-
-
-# ✅ For Updating a Kit
-class KitUpdate(KitBase):
-    pass
-
-
-# ✅ For Reading / Returning a Kit
-class KitResponse(KitBase):
-    id: int
+    user_id: int
 
     class Config:
         orm_mode = True

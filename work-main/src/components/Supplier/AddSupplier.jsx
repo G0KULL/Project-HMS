@@ -2,37 +2,98 @@ import React, { useState } from "react";
 
 const AddSupplierForm = () => {
   const [formData, setFormData] = useState({
-    "Full Name": "",
+    Name: "",
     Gender: "",
-    "Date of Birth*": "",
-    "Registration No.*": "",
-    "Blood Group*": "",
-    "Age*": "",
-    "Contact Number*": "",
-    "Email Address*": "",
-    "Address*": "",
-    "Upload Aadhaar Card*": "",
-    "Upload Driving License*": "",
+    dob: "",
+    regno: "",
+    bloodgroup: "",
+    age: "",
+    contact: "",
+    email: "",
+    address: "",
+    aadhaar: null,
+    license: null,
   });
 
     const [errors, setErrors] = useState({});
   const [showPopup, setShowPopup] = useState(false); // state for popup
 
+  const API_URL = "http://localhost:8000/suppliers/";
+
+  const validateFields = (formData) => {
+  let errors = {};
+
+  // Required check
+  const requiredFields = [
+    "company_name",
+    "supplier_name",
+    "phone",
+    "email",
+    "gst_number",
+    "pan_number",
+    "address",
+  ];
+
+  requiredFields.forEach((field) => {
+    if (!formData[field] || formData[field].trim() === "") {
+      errors[field] = "This field is required";
+    }
+  });
+
+  // Phone: 10 digits only
+  if (formData.phone && !/^[6-9]\d{9}$/.test(formData.phone)) {
+    errors.phone = "Enter a valid 10-digit mobile number";
+  }
+
+  // Email format
+  if (
+    formData.email &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+  ) {
+    errors.email = "Enter a valid email address";
+  }
+
+  // GST number format: 15 chars, uppercase letters + digits
+  if (
+    formData.gst_number &&
+    !/^[0-9A-Z]{15}$/.test(formData.gst_number)
+  ) {
+    errors.gst_number = "Invalid GST Number (must be 15 characters)";
+  }
+
+  // PAN format: 5 letters + 4 digits + 1 letter → ABCDE1234F
+  if (
+    formData.pan_number &&
+    !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan_number)
+  ) {
+    errors.pan_number = "Invalid PAN Number (Format: ABCDE1234F)";
+  }
+
+  return errors;
+};
+
+
   // Handle input change
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value ,files} = e.target;
+    if (files) {
+      setFormData({ ...formData, [name]: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+
     setErrors({ ...errors, [name]: "" });
+
   };
 
   // Handle submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     let newErrors = {};
 
     // Validate all fields
     Object.keys(formData).forEach((field) => {
-      if (!formData[field].trim()) {
+      if (!formData[field] || formData[field] === "") {
         newErrors[field] = "This field is required";
       }
     });
@@ -42,15 +103,48 @@ const AddSupplierForm = () => {
       return;
     }
 
-    // Show popup instead of alert
-    setShowPopup(true);
+    try {
+      // Prepare FormData for backend
+      const data = new FormData();
+
+      Object.keys(formData).forEach((key) => {
+        data.append(key, formData[key]);
+      });
+
+      // Also pass user_id (required in backend)
+      data.append("user_id", 1); // Replace with actual logged in user ID
+
+      const response = await  fetch(API_URL, {
+        method: "POST",
+        body: data,
+      });
+
+      if (response.ok) {
+        setShowPopup(true);
+      } else {
+        alert("Error submitting form");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error");
+    }
   };
 
   // Handle cancel
   const handleCancel = () => {
-    const resetData = {};
-    Object.keys(formData).forEach((key) => (resetData[key] = ""));
-    setFormData(resetData);
+    setFormData({
+      Name: "",
+      Gender: "",
+      dob: "",
+      regno: "",
+      bloodgroup: "",
+      age: "",
+      contact: "",
+      email: "",
+      address: "",
+      aadhaar: null,
+      license: null,
+    });
     setErrors({});
   };
 
@@ -58,20 +152,20 @@ const AddSupplierForm = () => {
     <div className="p-6 max-w-8xl mx-auto">
       <h1 className="text-3xl font-bold  mb-6">Add Supplier</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-lg bg-[#CBDCEB] p-10">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-lg bg-[#F7DACD] p-10">
         {/* Row 1 */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
             <label className="block font-medium">Full Name*</label>
             <input
               type="text"
-              name="Full Name"
-              value={formData["Full Name"]}
+              name="Name"
+              value={formData["Name"]}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors["Full Name"] && (
-              <p className="text-red-500 text-sm">{errors["Full Name"]}</p>
+            {errors["Name"] && (
+              <p className="text-red-500 text-sm">{errors["Name"]}</p>
             )}
           </div>
 
@@ -86,7 +180,8 @@ const AddSupplierForm = () => {
               <option value="">Select Gender</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
-              <option value="Other">Other</option>
+              <option value="Others">Others</option>
+              <option value="Prefer not to say">Prefer not to say</option>
             </select>
             {errors.Gender && (
               <p className="text-red-500 text-sm">{errors.Gender}</p>
@@ -97,13 +192,13 @@ const AddSupplierForm = () => {
             <label className="block font-medium">Date of Birth*</label>
             <input
               type="date"
-              name="Date of Birth*"
-              value={formData["Date of Birth*"]}
+              name="dob"
+              value={formData["dob"]}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors["Date of Birth*"] && (
-              <p className="text-red-500 text-sm">{errors["Date of Birth*"]}</p>
+            {errors["dob"] && (
+              <p className="text-red-500 text-sm">{errors["dob"]}</p>
             )}
           </div>
 
@@ -111,14 +206,14 @@ const AddSupplierForm = () => {
             <label className="block font-medium">Registration No.*</label>
             <input
               type="text"
-              name="Registration No.*"
-              value={formData["Registration No.*"]}
+              name="regno"
+              value={formData["regno"]}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors["Registration No.*"] && (
+            {errors["regno"] && (
               <p className="text-red-500 text-sm">
-                {errors["Registration No.*"]}
+                {errors["regno"]}
               </p>
             )}
           </div>
@@ -127,58 +222,58 @@ const AddSupplierForm = () => {
         {/* Row 2 */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
-            <label className="block font-medium">Blood Group*</label>
+            <label className="block font-medium">Blood Group</label>
             <input
               type="text"
-              name="Blood Group*"
-              value={formData["Blood Group*"]}
+              name="bloodgroup"
+              value={formData["bloodgroup"]}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors["Blood Group*"] && (
-              <p className="text-red-500 text-sm">{errors["Blood Group*"]}</p>
+            {errors["bloodgroup"] && (
+              <p className="text-red-500 text-sm">{errors["bloodgroup"]}</p>
             )}
           </div>
 
           <div>
-            <label className="block font-medium">Age*</label>
+            <label className="block font-medium">Age</label>
             <input
               type="number"
-              name="Age*"
-              value={formData["Age*"]}
+              name="age"
+              value={formData["age"]}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors["Age*"] && (
-              <p className="text-red-500 text-sm">{errors["Age*"]}</p>
+            {errors["age"] && (
+              <p className="text-red-500 text-sm">{errors["age"]}</p>
             )}
           </div>
 
           <div>
-            <label className="block font-medium">Contact Number*</label>
+            <label className="block font-medium">Contact Number</label>
             <input
               type="text"
-              name="Contact Number*"
-              value={formData["Contact Number*"]}
+              name="contact"
+              value={formData["contact"]}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors["Contact Number*"] && (
-              <p className="text-red-500 text-sm">{errors["Contact Number*"]}</p>
+            {errors["contact"] && (
+              <p className="text-red-500 text-sm">{errors["contact"]}</p>
             )}
           </div>
 
           <div>
-            <label className="block font-medium">Email Address*</label>
+            <label className="block font-medium">Email</label>
             <input
               type="email"
-              name="Email Address*"
-              value={formData["Email Address*"]}
+              name="email"
+              value={formData["email"]}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors["Email Address*"] && (
-              <p className="text-red-500 text-sm">{errors["Email Address*"]}</p>
+            {errors["email"] && (
+              <p className="text-red-500 text-sm">{errors["email"]}</p>
             )}
           </div>
         </div>
@@ -187,14 +282,14 @@ const AddSupplierForm = () => {
         <div>
           <label className="block font-medium">Address*</label>
           <textarea
-            name="Address*"
-            value={formData["Address*"]}
+            name="address"
+            value={formData["address"]}
             onChange={handleChange}
             className="w-full border rounded-lg px-3 py-2"
             rows="3"
           />
-          {errors["Address*"] && (
-            <p className="text-red-500 text-sm">{errors["Address*"]}</p>
+          {errors["address"] && (
+            <p className="text-red-500 text-sm">{errors["address"]}</p>
           )}
         </div>
 
@@ -203,7 +298,7 @@ const AddSupplierForm = () => {
 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full md:w-1/2">
   {/* Aadhaar Card Upload */}
   <div>
-    <label className="block font-medium mb-1">Upload Aadhaar Card*</label>
+    <label className="block font-medium mb-1">Upload Aadhaar</label>
     <label className="flex flex-col items-center justify-center border border-gray-300 rounded-lg px-3 py-6 cursor-pointer bg-white hover:bg-gray-50 text-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -215,26 +310,22 @@ const AddSupplierForm = () => {
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v6m0 0l-3-3m3 3l3-3M12 4v8" />
       </svg>
       <span className="text-gray-500 text-sm">File upload (PDF/JPG/PNG)</span>
-      <input
+      <input 
         type="file"
-        name="Upload Aadhaar Card*"
+        name="aadhaar"
         accept=".pdf,.jpg,.jpeg,.png"
-        onChange={(e) =>
-          handleChange({
-            target: { name: "Upload Aadhaar Card*", value: e.target.files[0]?.name || "" }
-          })
-        }
+        onChange={handleChange}
         className="hidden"
       />
     </label>
-    {errors["Upload Aadhaar Card*"] && (
-      <p className="text-red-500 text-sm mt-1">{errors["Upload Aadhaar Card*"]}</p>
+    {errors["aadhaar"] && (
+      <p className="text-red-500 text-sm mt-1">{errors["aadhaar"]}</p>
     )}
   </div>
 
   {/* Driving License Upload */}
   <div>
-    <label className="block font-medium mb-1">Upload Driving License*</label>
+    <label className="block font-medium mb-1">Upload Driving License</label>
     <label className="flex flex-col items-center justify-center border border-gray-300 rounded-lg px-3 py-6 cursor-pointer bg-white hover:bg-gray-50 text-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -246,20 +337,16 @@ const AddSupplierForm = () => {
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12v6m0 0l-3-3m3 3l3-3M12 4v8" />
       </svg>
       <span className="text-gray-500 text-sm">File upload (PDF/JPG/PNG)</span>
-      <input
+      <input 
         type="file"
-        name="Upload Driving License*"
+        name="license"
         accept=".pdf,.jpg,.jpeg,.png"
-        onChange={(e) =>
-          handleChange({
-            target: { name: "Upload Driving License*", value: e.target.files[0]?.name || "" }
-          })
-        }
+        onChange={handleChange}
         className="hidden"
       />
     </label>
-    {errors["Upload Driving License*"] && (
-      <p className="text-red-500 text-sm mt-1">{errors["Upload Driving License*"]}</p>
+    {errors["license"] && (
+      <p className="text-red-500 text-sm mt-1">{errors["license"]}</p>
     )}
   </div>
 </div>

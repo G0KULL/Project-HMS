@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from database import Base, engine,SessionLocal
 from sqlalchemy.orm import Session
-from routers import patients, appointments, doctors, optometrys, company, user, offer,auth, kits, medicines, consultations
+from routers import patients, appointments, doctors, optometrys, company, user, offer,auth, kits, medicines, consultations,suppliers
 from routers import bills
 from typing import List
 from fastapi.staticfiles import StaticFiles
@@ -53,3 +53,4 @@ app.include_router(auth.router)
 app.include_router(kits.router)
 app.include_router(medicines.router)
 app.include_router(consultations.router)
+app.include_router(suppliers.router)

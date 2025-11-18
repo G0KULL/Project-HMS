@@ -1133,13 +1133,13 @@ def create_consultation(db: Session, data: schemas.ConsultationCreate, current_u
                     d.dict() if hasattr(d, "dict") else d for d in consult_data[field]
                 ]
 
-        # --- Ensure valid date fields ---
-        from datetime import date
-        today = date.today()
-        if not consult_data.get("start_date"):
-            consult_data["start_date"] = today
-        if not consult_data.get("end_date"):
-            consult_data["end_date"] = today
+        # # --- Ensure valid date fields ---
+        # from datetime import date
+        # today = date.today()
+        # if not consult_data.get("start_date"):
+        #     consult_data["start_date"] = today
+        # if not consult_data.get("end_date"):
+        #     consult_data["end_date"] = today
 
         # --- Create record ---
         new_consult = models.Consultation(**consult_data)
@@ -1183,4 +1183,52 @@ def update_consultation(db: Session, consultation_id: int, consultation_update: 
     db.refresh(db_consult)
     return db_consult
 
+# Delete consultation
+def delete_consultation(db: Session, consultation_id: int):
+    db_consult = db.query(models.Consultation).filter(models.Consultation.id == consultation_id).first()
+    if not db_consult:
+        return None
 
+    db.delete(db_consult)
+    db.commit()
+    return True 
+
+
+def create_supplier(db: Session, supplier: schemas.SupplierCreate):
+    db_supplier = models.Supplier(**supplier.dict())
+    db.add(db_supplier)
+    db.commit()
+    db.refresh(db_supplier)
+    return db_supplier
+
+
+def get_supplier(db: Session, supplier_id: int):
+    return db.query(models.Supplier).filter(models.Supplier.id == supplier_id).first()
+
+
+def get_suppliers(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Supplier).offset(skip).limit(limit).all()
+
+
+def update_supplier(db: Session, supplier_id: int, updates: schemas.SupplierUpdate):
+    db_supplier = get_supplier(db, supplier_id)
+    if not db_supplier:
+        return None
+
+    update_data = updates.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_supplier, key, value)
+
+    db.commit()
+    db.refresh(db_supplier)
+    return db_supplier
+
+
+def delete_supplier(db: Session, supplier_id: int):
+    db_supplier = get_supplier(db, supplier_id)
+    if not db_supplier:
+        return None
+
+    db.delete(db_supplier)
+    db.commit()
+    return True

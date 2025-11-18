@@ -1,25 +1,16 @@
-import React, { useState, useEffect,useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import Diagnosis from "./Diagnosis"; 
 import Procedure from "./Procedure";
 import OTCounselling from "./OtCounselling";
 import PrescribeMedi from "../components/PrescribeMedi";
 
-
 const Details = ({ onChange }) => {
   const [openModal, setOpenModal] = useState(null);
+
   const [medicineData, setMedicineData] = useState({
-    category: "",
-    itemName: "",
-    dosage: "",
-    frequency: "",
-    duration: "",
-    route: "",
-    quantity: "",
-    start_date: "",
-    end_date: "",
-    kit: "",
-    instruction: "",
-  });
+  medicines: []
+});
+
 
   const [diagnosisData, setDiagnosisData] = useState({
     diagnosisList: [],
@@ -35,32 +26,24 @@ const Details = ({ onChange }) => {
     otCounsellingList: [],
   });
 
-  // 🔥 FIX: Memoize the combined data to prevent infinite loops
-  const combinedData = useCallback(() => ({
-    diagnosisList: diagnosisData.diagnosisList || [],
-    diagnosisComments: diagnosisData.doctorComments || { LE: "", RE: "" },
-    procedureList: procedureData.procedureList || [],
-    procedureComments: procedureData.doctorComments || { LE: "", RE: "" },
-    otCounsellingList: otCounsellingData.otCounsellingList || [],
-    medicineData: medicineData,
-  }), [diagnosisData, procedureData, otCounsellingData, medicineData]);
-
-  // 🔥 FIX: Only call onChange when data actually changes
+  // FIXED useEffect
   useEffect(() => {
-    if (onChange) {
+  if (onChange) {
+    onChange({
+      diagnosisList: diagnosisData.diagnosisList,
+      diagnosisComments: diagnosisData.doctorComments,
 
-      onChange({
-        diagnosisList: diagnosisData.diagnosisList || [],
-        diagnosisComments: diagnosisData.doctorComments || { LE: "", RE: "" },
-        procedureList: procedureData.procedureList || [],
-        procedureComments: procedureData.doctorComments || { LE: "", RE: "" },
-        otCounsellingList: otCounsellingData.otCounsellingList || [],
-        medicineData: medicineData,
-      });
-    }
-  }, [diagnosisData, procedureData, otCounsellingData, medicineData, onChange]);
+      procedureList: procedureData.procedureList,
+      procedureComments: procedureData.doctorComments,
 
-  // Function to render the correct modal
+      otCounsellingList: otCounsellingData.otCounsellingList,
+
+      medicines: medicineData.medicines,  // ✔️ IMPORTANT
+    });
+  }
+}, [diagnosisData, procedureData, otCounsellingData, medicineData, onChange]);
+
+
   const renderModal = () => {
     switch (openModal) {
       case "diagnosis":
@@ -91,29 +74,16 @@ const Details = ({ onChange }) => {
             onDataChange={(data) => setMedicineData(data)}
           />
         );
-      case "kit":
-        return (
-          <MedicinKit
-            onClose={() => setOpenModal(null)}
-            onDataChange={(data) => setMedicineData(data)}
-          />
-        );
-      case "instruction":
-        return (
-          <Instruciton
-            onClose={() => setOpenModal(null)}
-            onDataChange={(data) => setMedicineData(data)}
-          />
-        );
       default:
         return null;
     }
   };
 
-
   return (
     <div className="p-6 space-y-12">
-      {/* DIAGNOSIS */}
+
+      {/* All your sections (Diagnosis, Procedure, OT, Treatment) stay same */}
+         {/* ================= DIAGNOSIS ================= */}
       <div>
         <h1 className="text-3xl font-bold mb-3">DIAGNOSIS</h1>
         <div
@@ -143,7 +113,7 @@ const Details = ({ onChange }) => {
         </div>
       </div>
 
-      {/* PROCEDURE */}
+      {/* ================= PROCEDURE ================= */}
       <div>
         <h1 className="text-3xl font-bold mb-3">PROCEDURE</h1>
         <div
@@ -182,7 +152,7 @@ const Details = ({ onChange }) => {
         </div>
       </div>
 
-      {/* OT COUNSELLING */}
+      {/* ================= OT COUNSELLING ================= */}
       <div>
         <h1 className="text-3xl font-bold mb-3">OT COUNSELLING</h1>
         <div
@@ -212,7 +182,7 @@ const Details = ({ onChange }) => {
         </div>
       </div>
 
-      {/* TREATMENT */}
+      {/* ================= TREATMENT ================= */}
       <div>
         <h1 className="text-3xl font-bold mb-3">TREATMENT</h1>
         <div
@@ -222,89 +192,34 @@ const Details = ({ onChange }) => {
           <div className="grid grid-cols-1 md:grid-cols-4 md:h-[200px] gap-6">
             <div>
               <h2 className="text-[32px]">Medicine</h2>
-              <input 
-                type="text" 
-                value={medicineData.itemName || ""}
-                readOnly
-                className="w-full bg-white rounded-full px-3 py-6 mt-1" 
-              />
+              <input type="text" className="w-full bg-white rounded-full px-3 py-6 mt-1" />
             </div>
             <div>
               <h2 className="text-[32px]">Dosage</h2>
-              <input 
-                type="text" 
-                value={medicineData.dosage || ""}
-                readOnly
-                className="w-full bg-white rounded-full px-3 py-6 mt-1" 
-              />
+              <input type="text" className="w-full bg-white rounded-full px-3 py-6 mt-1" />
             </div>
             <div>
               <h2 className="text-[32px]">Duration</h2>
-              <input 
-                type="text" 
-                value={medicineData.duration || ""}
-                readOnly
-                className="w-full bg-white rounded-full px-3 py-6 mt-1" 
-              />
+              <input type="text" className="w-full bg-white rounded-full px-3 py-6 mt-1" />
             </div>
             <div>
               <h2 className="text-[32px]">Route</h2>
-              <input 
-                type="text" 
-                value={medicineData.route || ""}
-                readOnly
-                className="w-full bg-white rounded-full px-3 py-6 mt-1" 
-              />
+              <input type="text" className="w-full bg-white rounded-full px-3 py-6 mt-1" />
             </div>
           </div>
         </div>
       </div>
-
-      {/* POPUPS */}
-      {openModal === "diagnosis" && (
+      {openModal && (
         <div className="fixed inset-0 z-50 flex justify-center items-start pt-20">
-          <div className="absolute inset-0 backdrop-blur-sm bg-gray-200/30" onClick={() => setOpenModal(null)} />
-          <div className="relative z-10 w-11/12 max-w-7xl">
-            <Diagnosis 
-              onClose={() => setOpenModal(null)} 
-              onDataChange={(data) => setDiagnosisData(data)}
-            />
-          </div>
-        </div>
-      )}
-
-      {openModal === "procedure" && (
-        <div className="fixed inset-0 z-50 flex justify-center items-start pt-20">
-          <div className="absolute inset-0 backdrop-blur-sm bg-gray-200/30" onClick={() => setOpenModal(null)} />
-          <div className="relative z-10 w-11/12 max-w-7xl">
-            <Procedure 
-              onClose={() => setOpenModal(null)} 
-              onDataChange={(data) => setProcedureData(data)}
-            />
-          </div>
-        </div>
-      )}
-
-      {openModal === "ot" && (
-        <div className="fixed inset-0 z-50 flex justify-center items-start pt-20">
-          <div className="absolute inset-0 backdrop-blur-sm bg-gray-200/30" onClick={() => setOpenModal(null)} />
-          <div className="relative z-10 w-11/12 max-w-7xl">
-            <OTCounselling 
-              onClose={() => setOpenModal(null)} 
-              onDataChange={(data) => setOtCounsellingData(data)}
-            />
-          </div>
-        </div>
-      )}
-
-      {openModal === "treatment" && (
-        <div className="fixed inset-0 z-50 flex justify-center items-start pt-20">
-          <div className="absolute inset-0 backdrop-blur-sm bg-gray-200/30" onClick={() => setOpenModal(null)} />
-          <div className="relative z-10 w-11/12 max-w-7xl">
-            <PrescribeMedi 
-              onClose={() => setOpenModal(null)}
-              onDataChange={(data) => setMedicineData(data)} 
-            />
+          <div
+            className="absolute inset-0 backdrop-blur-sm bg-gray-200/30"
+            onClick={() => setOpenModal(null)}
+          />
+          <div
+            className="relative z-10 w-11/12 max-w-7xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {renderModal()}
           </div>
         </div>
       )}

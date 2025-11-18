@@ -526,24 +526,14 @@ class Consultation(Base):
     
     #-----medicine--
     
-    category = Column(String,nullable=True)
-    itemName = Column(String,nullable=True)
-    dosage = Column(String,nullable=True)
-    frequency = Column(String,nullable=True)
-    duration = Column(String,nullable=True)
-    route = Column(String,nullable=True)
-    quantity = Column(String,nullable=True)
-    start_date = Column(Date,nullable=True)
-    end_date = Column(Date,nullable=True)
-    
-    
+    medicines = Column(JSON, nullable=True)
     
     #-------kit------
     
     kit = Column(String,nullable=True)
     #----Special instruction-----
     
-    instruction = Column(Text,nullable=True)
+    instruction = Column(JSON, nullable=True)
     
     pog_data = Column(JSON, nullable=True)
     extra_note = Column(String, nullable=True)
@@ -577,6 +567,26 @@ class Kit(Base):
     start_date = Column(Date,nullable=True)
     end_date = Column(Date,nullable=True)
 
+    
+class Supplier(Base):
+    __tablename__ = "suppliers"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    Name = Column(String, nullable=False)
+    Gender = Column(Enum(GenderEnum), nullable=True)
+    dob = Column(Date, nullable=True)
+    
+    regno = Column(String, nullable=True)
+    bloodgroup = Column(String, nullable=True)
+    age = Column(Integer, nullable=True)
+    contact = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    address = Column(Text, nullable=True)
+    aadhaar = Column(String, nullable=False)
+    license = Column(String, nullable=False)
+    
     
     
     

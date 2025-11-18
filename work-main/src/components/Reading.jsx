@@ -273,14 +273,7 @@ const PatientInfo = () => {
               <span className="font-bold">MR Number:</span>{" "}
               {patientData.custom_id || patientData.id || "-"}
             </p>
-            <p>
-              <span className="font-bold">Visit Date:</span>{" "}
-              {patientData.visitDate || patientData.visit_date
-                ? new Date(
-                    patientData.visitDate || patientData.visit_date
-                  ).toLocaleDateString()
-                : "-"}
-            </p>
+
             <p>
               <span className="font-bold">Visit Type:</span>{" "}
               {patientData.patient_type || "GENERAL CONSULTATION"}

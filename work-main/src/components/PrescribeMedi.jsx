@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Edit, Trash2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-
-const PrescribeMedi = ({ onClose }) => {
+const PrescribeMedi = ({ onClose , onDataChange }) => {
   const [selectedHeader, setSelectedHeader] = useState("");
   const [showKitModal, setShowKitModal] = useState(false);
   const [showInstructionPopup, setShowInstructionPopup] = useState(false); // ✅ added missing state
@@ -46,22 +45,21 @@ const PrescribeMedi = ({ onClose }) => {
 
   const [kits, setKits] = useState([]);
 
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  fetch("http://127.0.0.1:8000/kits", {
-    headers: { Authorization: token ? `Bearer ${token}` : "" },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (Array.isArray(data)) setKits(data);
-      else setKits([]);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch("http://127.0.0.1:8000/kits", {
+      headers: { Authorization: token ? `Bearer ${token}` : "" },
     })
-    .catch((err) => {
-      console.error("Failed to fetch kits:", err);
-      setKits([]);
-    });
-}, []);
-
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setKits(data);
+        else setKits([]);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch kits:", err);
+        setKits([]);
+      });
+  }, []);
 
   // const navigate = useNavigate();
 
@@ -80,44 +78,53 @@ useEffect(() => {
   };
 
   const handleAddMedicine = () => {
-    if (!itemName || !dosage || !form.duration || !form.route || !form.quantity) {
-      alert("Please fill all required fields!");
-      return;
-    }
+  if (!itemName || !dosage || !form.duration || !form.route || !form.quantity) {
+    alert("Please fill all required fields!");
+    return;
+  }
 
-    const newMedicine = {
-      category,
-      itemName,
-      dosage,
-      frequency: form.frequency,
-      duration: form.duration,
-      route: form.route,
-      quantity: form.quantity,
-      startDate: form.startDate,
-      endDate: form.endDate,
-    };
-
-    if (editIndex !== null) {
-      const updated = [...medicines];
-      updated[editIndex] = newMedicine;
-      setMedicines(updated);
-      setEditIndex(null);
-    } else {
-      setMedicines([...medicines, newMedicine]);
-    }
-
-    setCategory("ALL");
-    setDosage("");
-    setItemName("");
-    setForm({
-      frequency: "",
-      duration: "",
-      route: "",
-      quantity: "",
-      startDate: "",
-      endDate: "",
-    });
+  const newMedicine = {
+    category,
+    itemName,
+    dosage,
+    frequency: form.frequency,
+    duration: form.duration,
+    route: form.route,
+    quantity: form.quantity,
+    startDate: form.startDate,
+    endDate: form.endDate,
   };
+
+  let updatedList;
+
+  if (editIndex !== null) {
+    updatedList = [...medicines];
+    updatedList[editIndex] = newMedicine;
+    setMedicines(updatedList);
+    setEditIndex(null);
+  } else {
+    updatedList = [...medicines, newMedicine];
+    setMedicines(updatedList);
+  }
+
+  // ✅ SEND DATA BACK TO DETAILS
+  if (typeof onDataChange === "function") {
+    onDataChange({ medicines: updatedList });
+  }
+
+  // Reset fields
+  setCategory("ALL");
+  setDosage("");
+  setItemName("");
+  setForm({
+    frequency: "",
+    duration: "",
+    route: "",
+    quantity: "",
+    startDate: "",
+    endDate: "",
+  });
+};
 
   const handleEdit = (index) => {
     const med = medicines[index];
@@ -136,9 +143,15 @@ useEffect(() => {
   };
 
   const handleDelete = (index) => {
-    const updated = medicines.filter((_, i) => i !== index);
-    setMedicines(updated);
-  };
+  const updated = medicines.filter((_, i) => i !== index);
+  setMedicines(updated);
+
+  // ✅ SEND UPDATED LIST TO DETAILS
+  if (typeof onDataChange === "function") {
+    onDataChange({ medicines: updated });
+  }
+};
+
 
   const close = () => {
     if (typeof onClose === "function") {
@@ -181,7 +194,8 @@ useEffect(() => {
               onClick={() => {
                 setSelectedHeader(header);
                 if (header === "Kit") setShowKitModal(true);
-                if (header === "Special instruction") setShowInstructionPopup(true);
+                if (header === "Special instruction")
+                  setShowInstructionPopup(true);
               }}
               className={`flex-1 text-center px-4 py-2 cursor-pointer text-base md:text-xl font-semibold border rounded-full transition-all ${
                 selectedHeader === header
@@ -324,13 +338,13 @@ useEffect(() => {
               ) : (
                 medicines.map((med, index) => (
                   <tr key={index} className="text-center border-t">
-                    <td className="px-4 py-2">{med.itemName}</td>
+                    <td className="px-4 py-2">{med.name}</td>
                     <td className="px-4 py-2">{med.dosage}</td>
                     <td className="px-4 py-2">{med.duration}</td>
-                    <td className="px-4 py-2">{med.quantity}</td>
+                    <td className="px-4 py-2">{med.medquantity}</td>
                     <td className="px-4 py-2">{med.route}</td>
-                    <td className="px-4 py-2">{med.startDate}</td>
-                    <td className="px-4 py-2">{med.endDate}</td>
+                    <td className="px-4 py-2">{med.start_date}</td>
+                    <td className="px-4 py-2">{med.end_date}</td>
                     <td className="px-4 py-2 flex justify-center gap-3">
                       <button
                         type="button"
@@ -371,18 +385,17 @@ useEffect(() => {
             </h1>
             <div className="w-full flex justify-start">
               <select
-  className="w-[80%] border border-gray-300 rounded-lg p-4 text-lg focus:ring-2 focus:ring-[#7E4363] outline-none"
-  value={selectedKit} // you can add a state for the selected kit
-  onChange={(e) => setSelectedKit(e.target.value)}
->
-  <option value="">Select a kit</option>
-  {kits.map((kit) => (
-    <option key={kit.kitId} value={kit.kitId}>
-      {kit.kitName}
-    </option>
-  ))}
-</select>
-
+                className="w-[80%] border border-gray-300 rounded-lg p-4 text-lg focus:ring-2 focus:ring-[#7E4363] outline-none"
+                value={selectedKit} // you can add a state for the selected kit
+                onChange={(e) => setSelectedKit(e.target.value)}
+              >
+                <option value="">Select a kit</option>
+                {kits.map((kit) => (
+                  <option key={kit.kitId} value={kit.kitId}>
+                    {kit.kitName}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="flex justify-center mt-10">
