@@ -96,29 +96,51 @@ export default function AddPatient() {
 
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+  const { name, value, files } = e.target;
 
-    if (files) {
-      setFormData((s) => ({ ...s, [name]: files[0] }));
-      return;
+  // --- Handle file inputs ---
+  if (files && files.length > 0) {
+    setFormData((prev) => ({ ...prev, [name]: files[0] }));
+    return;
+  }
+
+  // --- Handle DOB input → calculate Age ---
+  if (name === "dob") {
+    let ageVal = "";
+    if (value) {
+      const dobDate = new Date(value);
+      const now = new Date();
+      let age = now.getFullYear() - dobDate.getFullYear();
+      const m = now.getMonth() - dobDate.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < dobDate.getDate())) age--;
+      ageVal = age >= 0 ? age.toString() : "";
     }
+    setFormData((prev) => ({ ...prev, dob: value, age: ageVal }));
+    return;
+  }
 
-    if (name === "dob") {
-      let ageVal = "";
-      if (value) {
-        const dobDate = new Date(value);
-        const now = new Date();
-        let age = now.getFullYear() - dobDate.getFullYear();
-        const m = now.getMonth() - dobDate.getMonth();
-        if (m < 0 || (m === 0 && now.getDate() < dobDate.getDate())) age--;
-        ageVal = age >= 0 ? age.toString() : "";
-      }
-      setFormData((s) => ({ ...s, dob: value, age: ageVal }));
-      return;
+  // --- Handle Age input → calculate DOB ---
+  if (name === "age") {
+    const ageNum = parseInt(value, 10);
+    if (!isNaN(ageNum) && ageNum >= 0 && ageNum <= 120) {
+      const today = new Date();
+      const dob = new Date(
+        today.getFullYear() - ageNum,
+        today.getMonth(),
+        today.getDate()
+      );
+      const dobFormatted = dob.toISOString().split("T")[0];
+      setFormData((prev) => ({ ...prev, age: value, dob: dobFormatted }));
+    } else {
+      setFormData((prev) => ({ ...prev, age: value }));
     }
+    return;
+  }
 
-    setFormData((s) => ({ ...s, [name]: value }));
-  };
+  // --- Default input handling ---
+  setFormData((prev) => ({ ...prev, [name]: value }));
+};
+
 
   const validateForm = () => {
   const newErrors = {};
@@ -224,7 +246,7 @@ export default function AddPatient() {
     <div className="p-6 space-y-8">
       <h1 className="text-4xl font-bold">Personal Details</h1>
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="bg-[#CBDCEB] p-10 rounded-xl grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-[#F7DACD] p-10 rounded-xl grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
   <label className="block mb-1 font-medium">Company*</label>
   <select
@@ -312,7 +334,7 @@ export default function AddPatient() {
         </div>
 
         <h2 className="text-4xl font-bold">Medical Information</h2>
-        <div className="bg-[#CBDCEB] p-10 rounded-xl grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-[#F7DACD] p-10 rounded-xl grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label>Known Allergies</label>
             <input type="text" name="knownAllergies" value={formData.knownAllergies} onChange={handleChange} disabled={isView} className="w-60 h-10 p-2 rounded-lg border text-sm"/>

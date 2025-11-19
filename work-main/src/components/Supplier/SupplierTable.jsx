@@ -50,8 +50,8 @@ const SupplierTable = () => {
           <thead className="bg-gray-800 h-[130px] text-white">
             <tr>
               <th className="px-6 py-4 text-left">Supplier ID</th>
-              <th className="px-6 py-4 text-left">Supplier Role</th>
-              <th className="px-6 py-4 text-left">Name</th>
+              <th className="px-6 py-4 text-left">Company Name</th>
+              <th className="px-6 py-4 text-left">Contact Person</th>
               <th className="px-6 py-4 text-left">Phone</th>
               <th className="px-6 py-4 text-left">Email</th>
               <th className="px-6 py-4 text-left">Address</th>
@@ -65,8 +65,8 @@ const SupplierTable = () => {
                 className="bg-[#CBDCEB] h-[167px] shadow-md text-2xl font-semibold rounded-lg"
               >
                 <td className="px-6 py-4">{supplier.id}</td>
-                <td className="px-6 py-4">{supplier.role}</td>
-                <td className="px-6 py-4">{supplier.name}</td>
+                <td className="px-6 py-4">{supplier.companyname}</td>
+                <td className="px-6 py-4">{supplier.contactPerson}</td>
                 <td className="px-6 py-4">{supplier.phone}</td>
                 <td className="px-6 py-4">{supplier.email}</td>
                 <td className="px-6 py-4">{supplier.address}</td>

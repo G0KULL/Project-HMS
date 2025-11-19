@@ -104,37 +104,75 @@ const AddUser = () => {
 
   // 🔹 Handle inputs
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+  const { name, value, files } = e.target;
 
-    if (name === "dob") {
-      const dob = new Date(value);
-      const now = new Date();
-      let age = now.getFullYear() - dob.getFullYear();
-      const m = now.getMonth() - dob.getMonth();
-      if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
+  // --- Auto calculate AGE when DOB changes ---
+  if (name === "dob") {
+    const dob = new Date(value);
+    const today = new Date();
+
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      dob: value,
+      age: age >= 0 ? age : "",
+    }));
+
+    return;
+  }
+
+  // --- Auto calculate DOB when AGE changes ---
+  if (name === "age") {
+    const age = Number(value);
+    if (age >= 0 && age <= 120) {
+      const today = new Date();
+      const calculatedDOB = new Date(
+        today.getFullYear() - age,
+        today.getMonth(),
+        today.getDate()
+      );
+
+      const dobFormatted = calculatedDOB.toISOString().split("T")[0];
+
       setFormData((prev) => ({
         ...prev,
-        dob: value,
-        age: age >= 0 ? age : "",
+        age: value,
+        dob: dobFormatted,
       }));
-      return;
-    }
-
-    if (name === "photo") {
-      setFormData((prev) => ({ ...prev, photo: files[0] }));
-      return;
-    }
-
-    if (name === "certificates") {
+    } else {
+      // Invalid age → only update age
       setFormData((prev) => ({
         ...prev,
-        certificates: [...prev.certificates, ...files],
+        age: value,
       }));
-      return;
     }
 
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+    return;
+  }
+
+  // ---- File Inputs ----
+  if (name === "photo") {
+    setFormData((prev) => ({ ...prev, photo: files[0] }));
+    return;
+  }
+
+  if (name === "certificates") {
+    setFormData((prev) => ({
+      ...prev,
+      certificates: [...prev.certificates, ...files],
+    }));
+    return;
+  }
+
+  // ---- Default input handler ----
+  setFormData((prev) => ({ ...prev, [name]: value }));
+};
+
 
   const handleToggleStatus = () =>
     !readOnly && setFormData((prev) => ({ ...prev, status: !prev.status }));

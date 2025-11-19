@@ -88,9 +88,14 @@ if (!formData.phone) {
   newErrors.phone = "Enter a valid phone number (with optional +country code, spaces, or dashes)";
 }
 
+    if (!formData.address) newErrors.address = "Address is required";
 
-    if (!formData.email) newErrors.email = "Email is required";
-    else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email))
+    if (!formData.name) newErrors.name = "Company name is required";
+
+    if(!formData.abbreviation) newErrors.abbreviation = "Abbreviation is required";
+
+
+    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email))
       newErrors.email = "Invalid email address";
 
     if (formData.website) {
@@ -183,8 +188,10 @@ if (!formData.phone) {
                 onChange={handleChange}
                 disabled={viewOnly}
                 className="w-full border rounded-lg p-2"
-                required
               />
+              {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name}</p>
+            )}
             </div>
 
             {/* Logo */}
@@ -223,8 +230,10 @@ if (!formData.phone) {
               disabled={viewOnly}
               className="w-full border rounded-lg p-2"
               rows="5"
-              required
             />
+            {errors.address && (
+              <p className="text-red-500 text-sm">{errors.address}</p>
+            )}
           </div>
         </div>
 
@@ -239,7 +248,6 @@ if (!formData.phone) {
               onChange={handleChange}
               disabled={viewOnly}
               className="w-full border rounded-lg p-2"
-              required
             />
             {errors.phone && (
               <p className="text-red-500 text-sm">{errors.phone}</p>
@@ -247,15 +255,13 @@ if (!formData.phone) {
           </div>
 
           <div>
-            <label className="block text-gray-600 mb-1">Email*</label>
+            <label className="block text-gray-600 mb-1">Email</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               disabled={viewOnly}
-              className="w-full border rounded-lg p-2"
-              required
             />
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email}</p>
@@ -265,7 +271,7 @@ if (!formData.phone) {
           <div>
             <label className="block text-gray-600 mb-1">Website</label>
             <input
-              type="text"
+              type="link"
               name="website"
               value={formData.website}
               onChange={handleChange}
@@ -287,7 +293,6 @@ if (!formData.phone) {
               value={formData.admin}
               onChange={handleChange}
               className="w-full border rounded-lg p-2"
-              required
             >
               <option value="">Select Admin</option>
               <option value="John Doe">John Doe</option>
@@ -305,8 +310,10 @@ if (!formData.phone) {
               onChange={handleChange}
               disabled={viewOnly}
               className="w-full border rounded-lg p-2"
-              required
             />
+            {errors.abbreviation && (
+              <p className="text-red-500 text-sm">{errors.abbreviation}</p>
+            )}
           </div>
 
           <div>

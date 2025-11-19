@@ -192,46 +192,69 @@ export default function AddDoctor() {
     fetchCompanies();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
+const handleChange = (e) => {
+  const { name, value, files } = e.target;
 
-    if (name === "certifications" || name === "experienceCertificate") {
+  // --- Handle multiple file uploads ---
+  if (name === "certifications" || name === "experienceCertificate") {
+    if (files && files.length > 0) {
       setFormData((prev) => ({
         ...prev,
-        [name]: files ? [...prev[name], ...files] : prev[name],
+        [name]: [...prev[name], ...files],
       }));
-      return;
     }
+    return;
+  }
 
-    if (name === "company_id") {
-      setFormData({ ...formData, [name]: parseInt(value) });
-    } else if (files) {
-      setFormData({ ...formData, [name]: files[0] });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-    if (name === "dob") {
-      let ageVal = "";
-      if (value) {
-        const dobDate = new Date(value);
-        const now = new Date();
-        let age = now.getFullYear() - dobDate.getFullYear();
-        const m = now.getMonth() - dobDate.getMonth();
-        if (m < 0 || (m === 0 && now.getDate() < dobDate.getDate())) age--;
-        ageVal = age >= 0 ? age.toString() : "";
-      }
-      setFormData((s) => ({ ...s, dob: value, age: ageVal }));
-      return;
-    }
+  // --- Handle single file uploads ---
+  if (files && files.length > 0) {
+    setFormData((prev) => ({ ...prev, [name]: files[0] }));
+    return;
+  }
 
-    setFormData((s) => ({ ...s, [name]: value }));
-    if (files) {
-      // Only store the actual File object, not the path
-      setFormData((prev) => ({ ...prev, [name]: files[0] }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+  // --- Handle select with numeric value ---
+  if (name === "company_id") {
+    setFormData((prev) => ({ ...prev, [name]: parseInt(value) }));
+    return;
+  }
+
+  // --- Handle DOB change → calculate Age ---
+  if (name === "dob") {
+    let ageVal = "";
+    if (value) {
+      const dobDate = new Date(value);
+      const now = new Date();
+      let age = now.getFullYear() - dobDate.getFullYear();
+      const m = now.getMonth() - dobDate.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < dobDate.getDate())) age--;
+      ageVal = age >= 0 ? age.toString() : "";
     }
-  };
+    setFormData((prev) => ({ ...prev, dob: value, age: ageVal }));
+    return;
+  }
+
+  // --- Handle Age change → calculate DOB ---
+  if (name === "age") {
+    const ageNum = Number(value);
+    if (!isNaN(ageNum) && ageNum >= 0 && ageNum <= 120) {
+      const today = new Date();
+      const calculatedDOB = new Date(
+        today.getFullYear() - ageNum,
+        today.getMonth(),
+        today.getDate()
+      );
+      const dobFormatted = calculatedDOB.toISOString().split("T")[0];
+      setFormData((prev) => ({ ...prev, age: value, dob: dobFormatted }));
+    } else {
+      setFormData((prev) => ({ ...prev, age: value }));
+    }
+    return;
+  }
+
+  // --- Default input handling ---
+  setFormData((prev) => ({ ...prev, [name]: value }));
+};
+
 
   const handleToggle = () =>
     setFormData((prev) => ({ ...prev, status: !prev.status }));
