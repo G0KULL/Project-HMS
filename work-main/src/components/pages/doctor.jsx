@@ -99,7 +99,7 @@ export default function DoctorManagement() {
         <h1 className="text-3xl sm:text-4xl font-poppins">Doctors</h1>
         <button
           onClick={() => navigate("/doctors/add")}
-          className="mt-2 sm:mt-0 px-4 py-2 bg-[#2FD770] text-white rounded hover:bg-green-600"
+          className="bg-[#7E4363] text-white text-xl px-4 py-4 rounded-lg hover:bg-[#9b5778]"
         >
           Add New Doctor
         </button>
@@ -108,7 +108,7 @@ export default function DoctorManagement() {
       {/* Table */}
       <div className="overflow-x-auto py-10">
         <table className="min-w-full border border-gray-200">
-          <thead className="bg-[#F7DACD]  h-20 font-poppins">
+          <thead className="bg-[#7E4363]  text-white">
             <tr>
               <th className="text-left p-3 border-b">ID</th>
               <th className="text-left p-3 border-b">Name</th>
@@ -128,7 +128,7 @@ export default function DoctorManagement() {
               </tr>
             ) : (
               doctors.map((doc) => (
-                <tr key={doc.id} className="hover:bg-gray-50">
+                <tr key={doc.id} className="border-b text-lg hover:bg-gray-100">
                   <td className="p-3 border-b">{doc.id}</td>
                   <td className="p-3 border-b">{doc.user?.name || doc.name}</td>
                   <td className="p-3 border-b">{doc.company?.name || "N/A"}</td>

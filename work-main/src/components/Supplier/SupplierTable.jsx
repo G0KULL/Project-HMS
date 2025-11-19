@@ -38,7 +38,7 @@ const SupplierTable = () => {
         <h1 className="text-3xl font-bold">Supplier Table</h1>
         <button
           onClick={() => navigate("/AddSupplier")}
-          className="bg-[#6D94C5] h-[40px] text-white px-4 py-1 rounded-lg text-2xl shadow-md"
+          className="bg-[#7E4363] text-white text-xl px-4 py-4 rounded-lg hover:bg-[#9b5778]"
         >
           + Add Supplier
         </button>
@@ -46,31 +46,31 @@ const SupplierTable = () => {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full border-separate border-spacing-y-9 h-[129px] text-lg">
-          <thead className="bg-gray-800 h-[130px] text-white">
+        <table className="min-w-full border-separate border-spacing-y-4 h-[129px] text-lg">
+          <thead className="bg-[#7E4363]  text-white">
             <tr>
-              <th className="px-6 py-4 text-left">Supplier ID</th>
-              <th className="px-6 py-4 text-left">Company Name</th>
-              <th className="px-6 py-4 text-left">Contact Person</th>
-              <th className="px-6 py-4 text-left">Phone</th>
-              <th className="px-6 py-4 text-left">Email</th>
-              <th className="px-6 py-4 text-left">Address</th>
-              <th className="px-6 py-4 text-left">Status</th>
+              <th className="px-4 py-4 text-center">Supplier ID</th>
+              <th className="px-4 py-4 text-center">Company Name</th>
+              <th className="px-4 py-4 text-center">Contact Person</th>
+              <th className="px-4 py-4 text-center">Phone</th>
+              <th className="px-4 py-4 text-center">Email</th>
+              <th className="px-4 py-4 text-center">Address</th>
+              <th className="px-4 py-4 text-center">Status</th>
             </tr>
           </thead>
           <tbody>
             {suppliers.map((supplier) => (
               <tr
                 key={supplier.id}
-                className="bg-[#CBDCEB] h-[167px] shadow-md text-2xl font-semibold rounded-lg"
+                className="border-b text-lg hover:bg-gray-100"
               >
-                <td className="px-6 py-4">{supplier.id}</td>
-                <td className="px-6 py-4">{supplier.companyname}</td>
-                <td className="px-6 py-4">{supplier.contactPerson}</td>
-                <td className="px-6 py-4">{supplier.phone}</td>
-                <td className="px-6 py-4">{supplier.email}</td>
-                <td className="px-6 py-4">{supplier.address}</td>
-                <td className="px-6 py-4">
+                <td className="px-4 py-4 text-center">{supplier.id}</td>
+                <td className="px-4 py-4 text-center">{supplier.companyname}</td>
+                <td className="px-4 py-4 text-center">{supplier.contactPerson}</td>
+                <td className="px-4 py-4 text-center">{supplier.phone}</td>
+                <td className="px-4 py-4 text-center">{supplier.email}</td>
+                <td className="px-4 py-4 text-center">{supplier.address}</td>
+                <td className="px-4 py-4 text-center">
                   {/* Toggle Switch */}
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input

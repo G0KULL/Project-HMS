@@ -9,7 +9,7 @@ import models
 # Security settings
 SECRET_KEY = "SECRET_KEY"  # ⚠️ Replace with a secure random key in production
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 40000  # 7 days
+ACCESS_TOKEN_EXPIRE_MINUTES = 40000  
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

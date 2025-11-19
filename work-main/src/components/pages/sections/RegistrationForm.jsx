@@ -80,7 +80,7 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
         mobile: appointment.mobile || "",
         alternateNumber: appointment.alternateNumber || "",
         email: appointment.email || "",
-        address1: appointment.address1 || "",
+        address1: appointment.address || "",
         aadhar: appointment.aadhar || "",
         city: appointment.city || "",
         state: appointment.state || "",
@@ -170,12 +170,34 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
 
   const validateForm = () => {
     const newErrors = {};
+
+    if(!formData.company_id){ 
+      newErrors.company_id = "Company is required.";
+    }
+
+    if(!formData.doctorId){
+      newErrors.doctorId = "Doctor is required.";
+    }
+
+    if (!formData.patientType) {
+      newErrors.patientType = "Patient type is required.";
+    }
+
     if (!formData.fullName || formData.fullName.trim().length < 2) {
-      newErrors.fullName = "Name is required and should be at least 2 characters.";
+      newErrors.fullName = "Name is required.";
     }
     if (!formData.gender) {
       newErrors.gender = "Gender is required.";
     }
+
+    if(!formData.age || parseInt(formData.age, 10) <= 0){
+      newErrors.age = "Valid age is required.";
+    }
+
+    if(!formData.address1 || formData.address1.trim().length < 5){
+      newErrors.address1 = "Valid address is required.";
+    }
+
     if (!formData.mobile) {
       newErrors.mobile = "Phone number is required";
     } else if (!/^\+?\d{0,4}?[-\s()]?\d{6,15}$/.test(formData.mobile.replace(/\s+/g, ""))) {
@@ -562,7 +584,7 @@ const handleSubmit = async (e) => {
 
     {/* Company */}
     <div className="flex flex-col">
-      <label className="font-medium text-gray-700 mb-1">Company:</label>
+      <label className="font-medium text-gray-700 mb-1">Company:*</label>
       {userRole === "super_admin" ? (
         <select
           name="company_id"
@@ -571,6 +593,7 @@ const handleSubmit = async (e) => {
           disabled={mode === "view"}
           className="border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400 bg-white w-full"
         >
+
           <option value="">-- Select Company --</option>
           {companies.map((c) => (
             <option key={c.id} value={c.id}>
@@ -585,12 +608,13 @@ const handleSubmit = async (e) => {
           readOnly
           className="border rounded-lg px-3 py-2 outline-none bg-gray-100 cursor-not-allowed w-full"
         />
+        
       )}
     </div>
 
     {/* Doctor */}
     <div className="flex flex-col">
-      <label className="font-medium text-gray-700 mb-1">Doctor:</label>
+      <label className="font-medium text-gray-700 mb-1">Doctor:*</label>
       {doctorsLoading ? (
         <div className="px-3 py-2">Loading...</div>
       ) : doctorsError ? (
@@ -662,7 +686,9 @@ const handleSubmit = async (e) => {
         })()}
         disabled={mode === "view"}
         bgColor="white"
+        error={errors.patientType}
       />
+      
 
       <TextInput
         label="Full Name*"
@@ -682,14 +708,17 @@ const handleSubmit = async (e) => {
         options={["Male", "Female", "Others", "PreferNotToSay"]}
         disabled={mode === "view"}
         bgColor="white"
+        error={errors.gender}
       />
 
       <TextInput
-        label="Age"
+        label="Age*"
         name="age"
         value={formData.age}
         onChange={handleChange}
         readOnly={mode === "view"}
+        bgColor="white"
+        error={errors.age}
       />
     </div>
 
@@ -706,16 +735,18 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="Address"
+        label="Address*"
         name="address1"
         value={formData.address1}
         onChange={handleChange}
         readOnly={mode === "view"}
+        bgColor="white"
+        error={errors.address1}
       />
 
       <div className="relative w-full">
         <TextInput
-          label="Pin Code*"
+          label="Pin Code"
           name="pin"
           value={formData.pin}
           onChange={handleChange}
@@ -730,7 +761,7 @@ const handleSubmit = async (e) => {
       </div>
 
       <TextInput
-        label="City*"
+        label="City"
         name="city"
         value={formData.city}
         onChange={handleChange}
@@ -738,7 +769,7 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="State*"
+        label="State"
         name="state"
         value={formData.state}
         onChange={handleChange}
@@ -763,7 +794,7 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="Reference*"
+        label="Reference"
         name="reference"
         value={formData.reference}
         onChange={handleChange}
@@ -792,17 +823,9 @@ const handleSubmit = async (e) => {
         readOnly={mode === "view"}
       />
       <TextInput
-        label="Aadhar No*"
+        label="Aadhar No"
         name="aadhar"
         value={formData.aadhar}
-        onChange={handleChange}
-        readOnly={mode === "view"}
-      />
-
-      <TextInput
-        label="Valid Upto*"
-        name="valid"
-        value={formData.valid}
         onChange={handleChange}
         readOnly={mode === "view"}
       />

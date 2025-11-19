@@ -632,7 +632,7 @@ def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
                 blood_group=getattr(appointment, 'bloodGroup', None),
                 phone_number=str(appointment.mobile) if getattr(appointment, 'mobile', None) else None,
                 email_id=getattr(appointment, 'email', None),
-                address=getattr(appointment, 'address1', None),
+                address1=getattr(appointment, 'address1', None),
                 city=getattr(appointment, 'city', None),
                 state=getattr(appointment, 'state', None),
                 pincode=getattr(appointment, 'pin', None),

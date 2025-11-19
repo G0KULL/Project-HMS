@@ -61,7 +61,7 @@ class UserBase(BaseModel):
     dob: date | None = None 
     blood_group: Optional[str] = None
     age: Optional[int] = None
-    email: EmailStr
+    email: Optional[EmailStr] = None
     phone: Optional[str] = None
     address: Optional[str] = None
     education: Optional[str] = None
@@ -88,22 +88,22 @@ class UserResponse(UserBase):
 # ---- For updating user ----
 class UserUpdate(BaseModel):
 
-    name: Optional[str]
-    gender: Optional[GenderEnum]
-    dob: Optional[date]
+    name: Optional[str]= None
+    gender: Optional[GenderEnum]= None
+    dob: Optional[date]= None
     bloodGroup: Optional[str] = None
-    age: Optional[int]
-    email: Optional[EmailStr]
-    phone: Optional[str]
-    address: Optional[str]
-    education: Optional[str]
+    age: Optional[int]= None
+    email: Optional[EmailStr]= None
+    phone: Optional[str]= None
+    address: Optional[str]= None
+    education: Optional[str]= None
     certificates: Optional[List[str]] = None
-    photo: Optional[str]
-    staticIP: Optional[str]
-    user_type: Optional[UserType]
-    is_active: Optional[bool]
-    company_id: Optional[int]
-    password: Optional[str]
+    photo: Optional[str]= None
+    staticIP: Optional[str]= None
+    user_type: Optional[UserType]= None
+    is_active: Optional[bool]= None
+    company_id: Optional[int]= None
+    password: Optional[str]= None
 
 
 class Token(BaseModel):

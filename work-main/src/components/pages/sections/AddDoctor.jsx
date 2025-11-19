@@ -1,4 +1,3 @@
-// src/components/AddDoctor.jsx
 import React, { useState, useEffect } from "react";
 import { FaUpload, FaChevronDown } from "react-icons/fa";
 import Select from "react-select";
@@ -42,7 +41,7 @@ export default function AddDoctor() {
     previous: "",
     Designation: "",
     Duration: "",
-
+    status: true,
     awards: "",
     experienceCertificate: [],
     password: "",
@@ -105,7 +104,7 @@ export default function AddDoctor() {
             password: data.user?.password,
             specialization: data.specialization,
             certifications: data.certifications || [],
-            experienceCertificate: data.experience_certificate || [],
+            experienceCertificate: data.experience_certificate || null,
             licenseNo: data.license_no,
             issuingCouncil: data.issuing_council,
             consultationFee: data.consultation_fee,
@@ -133,10 +132,14 @@ export default function AddDoctor() {
   const validateForm = () => {
     const newErrors = {};
 
+    if(!formData.company_id){
+      newErrors.company_id = "Company is required.";  
+    }
+
     // Name
     if (!formData.fullName || formData.fullName.trim().length < 2) {
       newErrors.fullName =
-        "Name is required and should be at least 2 characters.";
+        "Name is required.";
     }
 
     // Gender
@@ -162,9 +165,40 @@ export default function AddDoctor() {
       newErrors.contactNumber = "Phone must be 10–15 digits.";
     }
 
-    // Certificates (optional but must be files)
-    if (formData.certifications.some((file) => !(file instanceof File))) {
-      newErrors.certifications = "Certificates must be valid files.";
+    if (!formData.password || formData.password.length < 5) {
+      newErrors.password = "Password is required and must be at least 5 characters.";
+    }
+
+    // if (!formData.address || formData.address) {
+    //   newErrors.address = "Address is required ";
+    // }
+    if(!formData.education || formData.education.trim().length ===0){
+      newErrors.education = "Educational Qualification is required.";
+    }
+
+    if (!formData.specialization || formData.specialization.trim().length === 0) {
+      newErrors.specialization = "Specialization is required.";
+    }
+
+    if (!formData.licenseNo || formData.licenseNo.trim().length === 0) {
+      newErrors.licenseNo = "License Number is required.";
+    }
+
+    if (!formData.issuingCouncil || formData.issuingCouncil.trim().length === 0) {
+      newErrors.issuingCouncil = "Issuing Council is required.";
+    }
+
+    if (!formData.consultationFee || isNaN(formData.consultationFee)) { 
+      newErrors.consultationFee = "Consultation Fee must be a valid number.";
+    }
+
+    if (formData.languages.length === 0) {
+      newErrors.languages = "At least one language must be selected.";
+    }
+
+
+    if (formData.certifications.length === 0) {
+      newErrors.certifications = "At least one certification file is required.";
     }
 
     // Profile Photo (optional but must be image)
@@ -507,7 +541,7 @@ const handleChange = (e) => {
         <div className="bg-[#F7DACD] p-10 rounded-xl grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Row 1: Company, Full Name, Gender, DOB */}
           <div>
-            <label className="block mb-1 font-medium">Company</label>
+            <label className="block mb-1 font-medium">Company*</label>
             <select
               name="company_id"
               value={formData.company_id}
@@ -515,6 +549,7 @@ const handleChange = (e) => {
               disabled={isReadOnly}
               className="w-full h-12 border p-3 rounded-lg"
             >
+
               <option value="">Select Company</option>
               {companies.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -522,6 +557,9 @@ const handleChange = (e) => {
                 </option>
               ))}
             </select>
+            {errors.company_id && (
+              <p className="text-red-600 text-sm mt-1">{errors.company_id}</p>
+            )}
           </div>
 
           <div>
@@ -558,7 +596,21 @@ const handleChange = (e) => {
               <p className="text-red-600 text-sm mt-1">{errors.gender}</p>
             )}
           </div>
+          <div>
+            <label className="block mb-1 font-medium">Age*</label>
+            <input
+              type="number"
+              name="age"
+              value={formData.age}
+              onChange={handleChange}
+              readOnly={isReadOnly}
+              className="w-full h-12 p-3 border rounded-lg"
+            />
+          </div>
 
+          
+
+          {/* Row 2: Registration No, Blood Group, Age, Contact Number */}
           <div>
             <label className="block mb-1 font-medium">Date of Birth*</label>
             <input
@@ -571,21 +623,8 @@ const handleChange = (e) => {
             />
           </div>
 
-          {/* Row 2: Registration No, Blood Group, Age, Contact Number */}
           <div>
-            <label className="block mb-1 font-medium">Registration No.*</label>
-            <input
-              type="text"
-              name="registrationNo"
-              value={formData.registrationNo}
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="w-full h-12 p-3 border rounded-lg"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 font-medium">Blood Group*</label>
+            <label className="block mb-1 font-medium">Blood Group</label>
             <input
               type="text"
               name="bloodGroup"
@@ -596,17 +635,7 @@ const handleChange = (e) => {
             />
           </div>
 
-          <div>
-            <label className="block mb-1 font-medium">Age*</label>
-            <input
-              type="number"
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
-              readOnly={isReadOnly}
-              className="w-full h-12 p-3 border rounded-lg"
-            />
-          </div>
+          
 
           <div>
             <label className="block mb-1 font-medium">Contact Number*</label>
@@ -638,6 +667,9 @@ const handleChange = (e) => {
               readOnly={isReadOnly}
               className="w-full h-12 p-3 border rounded-lg"
             />
+            {errors.education && (
+              <p className="text-red-600 text-sm mt-1">{errors.education}</p>
+            )}
           </div>
 
           <div>
@@ -664,10 +696,13 @@ const handleChange = (e) => {
               readOnly={isReadOnly}
               className="w-full h-12 p-3 border rounded-lg resize-none"
             />
+            {errors.address && (
+              <p className="text-red-600 text-sm mt-1">{errors.address}</p>
+            )}
           </div>
 
           <div>
-            <label className="block mb-1 font-medium">Profile Photo*</label>
+            <label className="block mb-1 font-medium">Profile Photo</label>
             <label className="flex items-center justify-between w-full h-12 px-3 border rounded-lg text-sm text-gray-600 cursor-pointer bg-white hover:bg-gray-100">
               <span>Upload file</span>
               <FaUpload className="text-gray-500" />
@@ -699,6 +734,7 @@ const handleChange = (e) => {
                 readOnly={isReadOnly}
                 className="w-full h-12 p-3 border rounded-lg focus:ring-2 focus:ring-[#7E4363] outline-none pr-10"
               />
+
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -706,6 +742,9 @@ const handleChange = (e) => {
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
+            {errors.password && (
+              <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+            )}
             </div>
             {formData.password && (
               <p
@@ -776,6 +815,11 @@ const handleChange = (e) => {
               readOnly={isReadOnly}
               className="w-full h-12 p-2 rounded-lg border text-sm"
             />
+            {errors.specialization && (
+              <p className="text-red-600 text-sm mt-1">
+                {errors.specialization}
+              </p>
+            )}
           </div>
 
           {/* Medical Registration Number */}
@@ -791,6 +835,9 @@ const handleChange = (e) => {
               readOnly={isReadOnly}
               className="w-full h-12 p-2 rounded-lg border text-sm"
             />
+          {errors.licenseNo && (
+              <p className="text-red-600 text-sm mt-1">{errors.licenseNo}</p>
+            )}
           </div>
 
           {/* Issuing Medical Council */}
@@ -806,6 +853,9 @@ const handleChange = (e) => {
               readOnly={isReadOnly}
               className="w-full h-12 p-2 rounded-lg border text-sm"
             />
+          {errors.issuingCouncil && (
+              <p className="text-red-600 text-sm mt-1">{errors.issuingCouncil}</p>
+            )}
           </div>
 
           {/* Consultation Fee */}
@@ -821,6 +871,9 @@ const handleChange = (e) => {
               readOnly={isReadOnly}
               className="w-full h-12 p-2 rounded-lg border text-sm"
             />
+          {errors.consultationFee && (
+              <p className="text-red-600 text-sm mt-1">{errors.consultationFee}</p>
+            )}
           </div>
 
           {/* Languages Spoken */}
@@ -841,6 +894,9 @@ const handleChange = (e) => {
               disabled={isReadOnly}
               placeholder="Select languages..."
             />
+            {errors.languages && (
+              <p className="text-red-600 text-sm mt-1">{errors.languages}</p>
+            )}
           </div>
 
           {/* Certifications (BLS/ACLS, etc.) */}
@@ -859,7 +915,9 @@ const handleChange = (e) => {
                 readOnly={isReadOnly}
                 className="hidden"
               />
+
             </label>
+
             {/* Certifications list */}
             <div className="mt-2 space-y-1">
               {formData.certifications &&
@@ -889,16 +947,22 @@ const handleChange = (e) => {
                   </div>
                 ))}
             </div>
+                        {errors.certifications && (
+              <p className="text-red-600 text-sm mt-1">
+                {errors.certifications}
+              </p>
+            )}
+            
           </div>
         </div>
 
         {/* Work Experience */}
-        <h2 className="text-4xl font-bold">Work Experience*</h2>
+        <h2 className="text-4xl font-bold">Work Experience</h2>
         <div className="bg-[#F7DACD] p-10 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Total Years of Experience */}
           <div>
             <label className="block text-1xl font-poppins text-gray-800 mb-1">
-              Total Years of Experience*
+              Total Years of Experience
             </label>
             <input
               type="text"
@@ -913,7 +977,7 @@ const handleChange = (e) => {
           {/* Previous Hospital / Organization */}
           <div>
             <label className="block text-1xl font-poppins text-gray-800 mb-1">
-              Previous Hospital / Organization*
+              Previous Hospital / Organization
             </label>
             <input
               type="text"
@@ -928,7 +992,7 @@ const handleChange = (e) => {
           {/* Designation Held */}
           <div>
             <label className="block text-1xl font-poppins text-gray-800 mb-1">
-              Designation Held*
+              Designation Held
             </label>
             <input
               type="text"
@@ -943,7 +1007,7 @@ const handleChange = (e) => {
           {/* Duration */}
           <div>
             <label className="block text-1xl font-poppins text-gray-800 mb-1">
-              Duration*
+              Duration
             </label>
             <input
               type="text"
@@ -958,7 +1022,7 @@ const handleChange = (e) => {
           {/* Awards / Recognitions */}
           <div>
             <label className="block text-1xl font-poppins text-gray-800 mb-1">
-              Awards / Recognitions*
+              Awards / Recognitions
             </label>
             <input
               type="text"
@@ -973,7 +1037,7 @@ const handleChange = (e) => {
           {/* Upload Experience Certificate */}
           <div>
             <label className="block text-1xl font-poppins text-gray-800 mb-1">
-              Upload Experience Certificate*
+              Upload Experience Certificate
             </label>
             <label className="flex items-center justify-between w-full h-12 px-3 border rounded text-sm text-gray-600 cursor-pointer bg-white hover:bg-gray-100">
               <span>Upload file</span>

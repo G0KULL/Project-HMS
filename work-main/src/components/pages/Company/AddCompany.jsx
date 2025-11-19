@@ -17,7 +17,7 @@ const AddCompany = () => {
     phone: existingCompany?.phone || "",
     abbreviation: existingCompany?.abbreviation || "",
     admin: existingCompany?.admin || "",
-    status: existingCompany?.status || "INACTIVE",
+    status: existingCompany?.status || "ACTIVE",
     gstnumber: existingCompany?.gstnumber || "",
   });
 
@@ -27,17 +27,16 @@ const AddCompany = () => {
   const isEdit = !!existingCompany && !viewOnly;
 
   const { id } = useParams();
-useEffect(() => {
-  if (id) {
-    fetch(`http://127.0.0.1:8000/companies/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        setFormData(data);
-        if (data.logo) setLogoPreview(data.logo);
-      });
-  }
-}, [id]);
-
+  useEffect(() => {
+    if (id) {
+      fetch(`http://127.0.0.1:8000/companies/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setFormData(data);
+          if (data.logo) setLogoPreview(data.logo);
+        });
+    }
+  }, [id]);
 
   useEffect(() => {
     if (existingCompany) {
@@ -82,18 +81,21 @@ useEffect(() => {
   const validateForm = () => {
     const newErrors = {};
 
-if (!formData.phone) {
-  newErrors.phone = "Phone number is required";
-} else if (!/^\+?\d{0,4}?[-\s()]?\d{6,15}$/.test(formData.phone.replace(/\s+/g, ""))) {
-  newErrors.phone = "Enter a valid phone number (with optional +country code, spaces, or dashes)";
-}
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (
+      !/^\+?\d{0,4}?[-\s()]?\d{6,15}$/.test(formData.phone.replace(/\s+/g, ""))
+    ) {
+      newErrors.phone =
+        "Enter a valid phone number (with optional +country code, spaces, or dashes)";
+    }
 
     if (!formData.address) newErrors.address = "Address is required";
 
     if (!formData.name) newErrors.name = "Company name is required";
 
-    if(!formData.abbreviation) newErrors.abbreviation = "Abbreviation is required";
-
+    if (!formData.abbreviation)
+      newErrors.abbreviation = "Abbreviation is required";
 
     if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email))
       newErrors.email = "Invalid email address";
@@ -190,34 +192,33 @@ if (!formData.phone) {
                 className="w-full border rounded-lg p-2"
               />
               {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name}</p>
-            )}
+                <p className="text-red-500 text-sm">{errors.name}</p>
+              )}
             </div>
 
             {/* Logo */}
-<div>
-  <label className="block text-gray-600 mb-1">Company Logo</label>
+            <div>
+              <label className="block text-gray-600 mb-1">Company Logo</label>
 
-  <div className="flex items-center border rounded-lg p-2 cursor-pointer bg-white">
-    {!viewOnly ? (
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleLogoChange}
-        className="w-full outline-none"
-      />
-    ) : (
-      logoPreview && (
-        <img
-          src={logoPreview}
-          alt="Logo Preview"
-          className="h-16 w-16 object-cover rounded-full border mt-2"
-        />
-      )
-    )}
-  </div>
-</div>
-
+              <div className="flex items-center border rounded-lg p-2 cursor-pointer bg-white">
+                {!viewOnly ? (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="w-full outline-none"
+                  />
+                ) : (
+                  logoPreview && (
+                    <img
+                      src={logoPreview}
+                      alt="Logo Preview"
+                      className="h-16 w-16 object-cover rounded-full border mt-2"
+                    />
+                  )
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Address */}
@@ -288,7 +289,8 @@ if (!formData.phone) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
           <div>
             <label className="block text-gray-600 mb-1">Admin*</label>
-            <select disabled
+            <select
+              disabled
               name="admin"
               value={formData.admin}
               onChange={handleChange}
@@ -330,9 +332,7 @@ if (!formData.phone) {
 
           {/* Status */}
           <div className="flex flex-col ">
-            <label className="block text-gray-700  mb-1">
-              Status
-            </label>
+            <label className="block text-gray-700  mb-1">Status</label>
             <label className="inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"

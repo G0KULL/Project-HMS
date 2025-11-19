@@ -24,7 +24,7 @@ const AddUser = () => {
     age: userData?.age || "",
     bloodGroup: userData?.blood_group || "",
     contact: userData?.phone || "",
-    email: userData?.email || "",
+    email: userData?.email || null,
     address: userData?.address || "",
     company: userData?.company_id || "",
     education: userData?.education || "",
@@ -32,7 +32,7 @@ const AddUser = () => {
     photo: userData?.photo || null,
     password: "",
     staticIP: userData?.staticIP || "",
-    status: !!userData?.is_active,
+    status: userData?.is_active ?? true,
   });
 
   // 🔹 Fetch companies dynamically
@@ -85,10 +85,7 @@ const AddUser = () => {
     const newErrors = {};
 
     if (!formData.name.trim()) newErrors.name = "Name is required.";
-    if (!formData.gender) newErrors.gender = "Gender is required.";
-    if (!formData.email) newErrors.email = "Email is required.";
-    else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email))
-      newErrors.email = "Invalid email format.";
+    if (!formData.gender) newErrors.gender = "Select Gender.";
 
     if (!formData.contact) {
       newErrors.contact = "Phone number is required";
@@ -96,8 +93,16 @@ const AddUser = () => {
       newErrors.contact = "Enter a valid phone number (with optional +country code, spaces, or dashes)";
     }
 
+    if(!formData.email?.trim()){
+      newErrors.email = "Email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Enter a valid email address.";
+    } 
 
     if (!formData.company) newErrors.company = "Please select a company.";
+    if(!formData.address.trim()) newErrors.address = "Address is required.";
+    if (mode === "add" && !formData.password)
+      newErrors.password = "Password is required.";
 
     return newErrors;
   };
@@ -471,7 +476,7 @@ const AddUser = () => {
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">Address</label>
+              <label className="block mb-1 font-medium">Address*</label>
               <textarea
                 name="address"
                 value={formData.address}
@@ -480,6 +485,9 @@ const AddUser = () => {
                 rows="4"
                 className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#7E4363] outline-none"
               />
+              {errors.address && (
+                <p className="text-red-500 text-sm mt-1">{errors.address}</p>
+              )}
             </div>
           </div>
 
@@ -562,6 +570,9 @@ const AddUser = () => {
         readOnly={readOnly}
         className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#7E4363] outline-none pr-10"
       />
+      {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
       <button
         type="button"
         onClick={() => setShowPassword(!showPassword)}
@@ -598,31 +609,32 @@ const AddUser = () => {
     />
   </div>
 
-  {/* Status Toggle */}
-  <div className="flex flex-col gap-2">
-    <label className="font-medium">Status:</label>
-    <button
-      type="button"
-      onClick={handleToggleStatus}
-      disabled={readOnly}
-      className={`relative inline-flex h-6 w-12 items-center rounded-full transition ${
-        formData.status ? "bg-[#7E4363]" : "bg-gray-400"
-      }`}
-    >
-      <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-          formData.status ? "translate-x-6" : "translate-x-1"
-        }`}
-      />
-    </button>
+   {/* Status Toggle */}
+<div className="flex flex-col gap-2">
+  <label className="font-medium">Status:</label>
+  <button
+    type="button"
+    onClick={handleToggleStatus}
+    disabled={readOnly}
+    className={`relative inline-flex h-6 w-12 items-center rounded-full transition ${
+      formData.status ? "bg-green-500" : "bg-gray-400"
+    }`}
+  >
     <span
-      className={`text-sm ${
-        formData.status ? "text-[#7E4363]" : "text-gray-600"
+      className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+        formData.status ? "translate-x-6" : "translate-x-1"
       }`}
-    >
-      {formData.status ? "Active" : "Inactive"}
-    </span>
-  </div>
+    />
+  </button>
+  <span
+    className={`text-sm ${
+      formData.status ? "text-[#7E4363]" : "text-gray-600"
+    }`}
+  >
+    {formData.status ? "Active" : "Inactive"}
+  </span>
+</div>
+
 
   {/* Buttons aligned to the right */}
   {!readOnly && (

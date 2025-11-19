@@ -41,7 +41,7 @@ export default function Appointment() {
         if (!res.ok) {
           if (res.status === 401) {
             setError("Session expired. Please log in again.");
-            navigate("/login");
+            navigate("/");
             return;
           }
           throw new Error("Failed to load doctors");
@@ -105,6 +105,23 @@ console.log("Appointments doctor_user_id:", mapped.map(a => a.doctor_user_id));
     fetchAppointments();
   }, [token, role, companyId, loggedInUserId, API_BASE]);
 
+useEffect(() => {
+  if (!appointments || appointments.length === 0) return;
+
+  const today = new Date().toDateString(); // only date, no time
+
+  const expected = appointments.filter((appt) => {
+    const visitDateStr = appt.visitDate || appt.registrationDate; // correct field names
+    const visitDate = new Date(visitDateStr).toDateString();
+    return visitDate !== today;
+  });
+
+  console.log("Expected patients:", expected);
+  setExpectedPatients(expected);
+}, [appointments]);
+
+
+
   // View/Edit/Delete
   const handleView = (appt) => navigate("/RegistrationForm", { state: { appointment: appt, mode: "view" } });
   const handleEdit = (appt) => navigate("/RegistrationForm", { state: { appointment: appt, mode: "edit" } });
@@ -129,15 +146,24 @@ console.log("Appointments doctor_user_id:", mapped.map(a => a.doctor_user_id));
   const formatDate = (d) => (d ? new Date(d).toISOString().split("T")[0] : "");
 
   const filterByDate = (data) => {
-    return data.filter((appt) => {
-      const apptDate = new Date(appt.visit_date || appt.registrationDate);
-      const from = fromDate ? new Date(fromDate) : null;
-      const to = toDate ? new Date(toDate) : null;
-      if (from && apptDate < from) return false;
-      if (to && apptDate > to) return false;
-      return true;
-    });
-  };
+  return data.filter((appt) => {
+    // use correct field names
+    const apptDate = new Date(appt.visitDate || appt.registrationDate); 
+    const from = fromDate ? new Date(fromDate) : null;
+    const to = toDate ? new Date(toDate) : null;
+
+    // normalize to compare only dates
+    const apptTime = new Date(apptDate).setHours(0, 0, 0, 0);
+    const fromTime = from ? from.setHours(0, 0, 0, 0) : null;
+    const toTime = to ? to.setHours(0, 0, 0, 0) : null;
+
+    if (fromTime && apptTime < fromTime) return false;
+    if (toTime && apptTime > toTime) return false;
+
+    return true;
+  });
+};
+
 
   const handleSearch = () => {
     console.log("Search clicked:", { fromDate, toDate, searchQuery });
@@ -163,7 +189,7 @@ console.log("Appointments doctor_user_id:", mapped.map(a => a.doctor_user_id));
 
       <div className="overflow-x-auto w-full">
         <table className="w-full text-left border-separate" style={{ borderSpacing: "0 0.75rem" }}>
-          <thead className="bg-gray-800 text-white rounded-lg text-1xl font-poppins">
+          <thead className="bg-[#7E4363]  text-white">
             <tr>
               <th className="px-4 py-3">S. No.</th>
               <th className="px-4 py-3">Patient Name</th>
@@ -186,7 +212,7 @@ console.log("Appointments doctor_user_id:", mapped.map(a => a.doctor_user_id));
               </tr>
             ) : (
               filterByDate(data).map((appt, idx) => (
-                <tr key={appt.id} style={{ backgroundColor: appt.paymentStatus === highlightStatus ? "#6EE7B7" : "#FCA5A5" }}>
+                <tr key={appt.id} className="border-b text-lg hover:bg-gray-100">
                   <td className="px-4 py-3">{appt.id}</td>
                   <td className="px-4 py-3">{appt.fullName}</td>
                   <td className="px-4 py-3">{appt.age || "-"}</td>
