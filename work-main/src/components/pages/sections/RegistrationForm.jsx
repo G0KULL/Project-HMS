@@ -125,7 +125,7 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
     paymentStatus: "Pending",
     paymentMethod: "",
     amountPaid: "",
-    returnAmount: "",
+    returnAmount: 0,
     transactionId: "",
     transactionDate: "",
   });
@@ -170,12 +170,35 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
 
   const validateForm = () => {
     const newErrors = {};
+
+    if (!formData.patientType) {
+      newErrors.patientType = "Patient type is required.";
+    }
+
+    if(!formData.company_id && userRole === "super_admin") {
+      newErrors.company_id = "Company selection is required.";
+    }
+
+    if(!formData.doctorId) {
+      newErrors.doctorId = "Doctor selection is required.";
+    }
+
+
     if (!formData.fullName || formData.fullName.trim().length < 2) {
       newErrors.fullName = "Name is required and should be at least 2 characters.";
     }
     if (!formData.gender) {
       newErrors.gender = "Gender is required.";
     }
+
+    if(!formData.age || isNaN(formData.age) || parseInt(formData.age, 10) <= 0) {
+      newErrors.age = "Valid age is required.";
+    }
+
+    if (!formData.address1 || formData.address1.trim().length < 5) {
+      newErrors.address1 = "Address is required and should be at least 5 characters.";
+    }
+
     if (!formData.mobile) {
       newErrors.mobile = "Contact number is required.";
     } else if (!/^\+?\d{0,4}?[-\s()]?\d{6,15}$/.test(formData.mobile.replace(/\s+/g, ""))) {
@@ -561,7 +584,7 @@ const handleSubmit = async (e) => {
 
     {/* Company */}
     <div className="flex flex-col">
-      <label className="font-medium text-gray-700 mb-1">Company:</label>
+      <label className="font-medium text-gray-700 mb-1">Company:*</label>
       {userRole === "super_admin" ? (
         <select
           name="company_id"
@@ -570,6 +593,7 @@ const handleSubmit = async (e) => {
           disabled={mode === "view"}
           className="border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400 bg-white w-full"
         >
+          
           <option value="">-- Select Company --</option>
           {companies.map((c) => (
             <option key={c.id} value={c.id}>
@@ -585,11 +609,14 @@ const handleSubmit = async (e) => {
           className="border rounded-lg px-3 py-2 outline-none bg-gray-100 cursor-not-allowed w-full"
         />
       )}
+      {errors.company_id && (
+        <p className="text-red-600 text-sm mt-1">{errors.company_id}</p>
+      )}
     </div>
 
     {/* Doctor */}
     <div className="flex flex-col">
-      <label className="font-medium text-gray-700 mb-1">Doctor:</label>
+      <label className="font-medium text-gray-700 mb-1">Doctor:*</label>
       {doctorsLoading ? (
         <div className="px-3 py-2">Loading...</div>
       ) : doctorsError ? (
@@ -609,6 +636,9 @@ const handleSubmit = async (e) => {
             </option>
           ))}
         </select>
+      )}
+      {errors.doctorId && (
+        <p className="text-red-600 text-sm mt-1">{errors.doctorId}</p>
       )}
     </div>
 
@@ -661,6 +691,7 @@ const handleSubmit = async (e) => {
         })()}
         disabled={mode === "view"}
         bgColor="white"
+        error={errors.patientType}
       />
 
       <TextInput
@@ -685,11 +716,13 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="Age"
+        label="Age*"
         name="age"
         value={formData.age}
         onChange={handleChange}
         readOnly={mode === "view"}
+        bgColor="white"
+        error={errors.age}
       />
     </div>
 
@@ -697,7 +730,7 @@ const handleSubmit = async (e) => {
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
       <TextInput
         type="date"
-        label="Date of Birth*"
+        label="Date of Birth"
         name="dob"
         value={formData.dob}
         onChange={handleChange}
@@ -706,16 +739,17 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="Address"
+        label="Address*"
         name="address1"
         value={formData.address1}
         onChange={handleChange}
         readOnly={mode === "view"}
+        error={errors.address1}
       />
 
       <div className="relative w-full">
         <TextInput
-          label="Pin Code*"
+          label="Pin Code"
           name="pin"
           value={formData.pin}
           onChange={handleChange}
@@ -730,7 +764,7 @@ const handleSubmit = async (e) => {
       </div>
 
       <TextInput
-        label="City*"
+        label="City"
         name="city"
         value={formData.city}
         onChange={handleChange}
@@ -738,7 +772,7 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="State*"
+        label="State"
         name="state"
         value={formData.state}
         onChange={handleChange}
@@ -763,7 +797,7 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="Reference*"
+        label="Reference"
         name="reference"
         value={formData.reference}
         onChange={handleChange}
@@ -792,17 +826,9 @@ const handleSubmit = async (e) => {
         readOnly={mode === "view"}
       />
       <TextInput
-        label="Aadhar No*"
+        label="Aadhar No"
         name="aadhar"
         value={formData.aadhar}
-        onChange={handleChange}
-        readOnly={mode === "view"}
-      />
-
-      <TextInput
-        label="Valid Upto*"
-        name="valid"
-        value={formData.valid}
         onChange={handleChange}
         readOnly={mode === "view"}
       />

@@ -102,7 +102,7 @@ export default function Appointment() {
           visitDate.setHours(0, 0, 0, 0);
 
           // If visit date is tomorrow or later, it's expected
-          if (visitDate > today) {
+          if (visitDate >= today) {
             expected.push(appt);
           } else {
             // Today or past dates go to history

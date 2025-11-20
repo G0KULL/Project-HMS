@@ -4,7 +4,7 @@ import models
 from models import SuperAdmin
 import getpass
 import os
-from auth import get_password_hash
+from auths import get_password_hash
 
 def create_superadmin(db: Session, name: str, email: str, password: str, address: str = None, phone: str = None, user_type: str = "super_admin" ):
     existing = db.query(SuperAdmin).filter(SuperAdmin.email == email).first()

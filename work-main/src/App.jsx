@@ -82,67 +82,67 @@ function App() {
 
       {/* Routes */}
       <Routes>
-        <Route path="/home" element={<Home />} />
         <Route path="/" element={<SigninPage/>}/>
-        <Route path="/optometry/:id" element={<Optometry />} />
-        <Route path="/doctorsList" element={<DoctorList />} />
-        <Route path="/DoctorWaitingList" element={<DoctorWaitingList />} />
-        <Route path="/reading" element={<Reading />} />
-        <Route path="/examinationDoc" element={<ExaminationDoc />} />
-        <Route path="/diagnosis" element={<Diagnosis />} />
-        <Route path="/procedure" element={<Procedure />} />
-        <Route path="/otCounselling" element={<OtCounselling />} />
-        <Route path="/prescribeMedi" element={<PrescribeMedi />} />
-        <Route path="/CaseHistory" element={<CaseHistory />} />
-        <Route path="/Draw" element={<Draw />} />
-        <Route path="/ConsultList" element={<ConsultList />} />
-        <Route path="/appointment" element={<Appointment />} />
-        <Route path="/RegistrationForm" element={<RegistrationForm />} />
-        <Route path="/patients" element={<PatientsPage />} />
-        <Route path="/add-patient" element={<AddPatient />} />
-        <Route path="/doctors" element={<DoctorsPage />} />
-        <Route path="/pharmacy" element={<PharmacyPage />} />
-        <Route path="/pharmacy/view-prescription" element={<ViewPrescription />} />
-        <Route path="/pharmacy/view-unpaid" element={<ViewUnpaid />} />
-        <Route path="/pharmacy/add-medicines" element={<AddMedicines />} />
-        <Route path="/pharmacy/view-medicines" element={<ViewMedicines />} />
-        <Route path="/doctors/add" element={<AddDoctor />} />
-        <Route path="/doctors/:mode/:id?" element={<AddDoctor />} />
-        <Route path="/bills" element={<BillsPage />} />
-        <Route path="/opticals" element={<OpticalsPage />} />
-        {/* <Route path="/insurance" element={<InsurancePage />} /> */}
-        <Route path="/counsellor-desk" element={<CounsellorDeskPage />} />
-        {/* <Route path="/supplier" element={<Supplier />} /> */}
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/Consultation" element={<CardsData />} />
-        <Route path="/WaitingApprovel" element={<WaitingApprovel/>}/>
-        <Route path="/InsuranceProvider" element={<InsuranceProvider/>}/>
-        <Route path="/ForMailing" element={<ForMailing/>}/>
-        <Route path="/SupplierTable" element={<SupplierTable/>}/>
-        <Route path="/AddSupplier" element={<AddSupplier/>}/>
-        <Route path="/InventoryMang" element={<InventoryMang/>}/>
-        <Route path="/InventoryItems" element={<InventoryItems/>}/>
-        <Route path="/OfferPage" element={<OfferPage/>}/>
-        <Route path="/AddOffer" element={<AddOffer/>}/>
-        <Route path="/Dialated" element={<Dialated/>}/>
-        <Route path="/Keratometry" element={<Keratometry/>}/>
-        <Route path="/Pachymetry" element={<Pachymetry/>}/>
-        <Route path="/Eye" element={<Eye/>}/>
-        <Route path="/CompanyPage" element={<Company/>}/>
-        <Route path="/AddCompany" element={<AddCompany/>}/>
-        <Route path="/UserPage" element={<User/>}/>
-        <Route path="/AddUser" element={<AddUser/>}/>
-        <Route path="/ConsultationBill" element={<ConsultationBill/>}/>
-        <Route path="/Addkit" element={<AddKit/>}/>
-        <Route path="/KitPage" element={<KitPage/>}/>
 
-      <Route path="/profile" element={<ProfileContainer/>}/>
+        {/* Protected routes: wrap with ProtectedRoute so direct URL access requires auth */}
+        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/optometry/:id" element={<ProtectedRoute><Optometry /></ProtectedRoute>} />
+        <Route path="/doctorsList" element={<ProtectedRoute><DoctorList /></ProtectedRoute>} />
+        <Route path="/DoctorWaitingList" element={<ProtectedRoute><DoctorWaitingList /></ProtectedRoute>} />
+        <Route path="/reading" element={<ProtectedRoute><Reading /></ProtectedRoute>} />
+        <Route path="/examinationDoc" element={<ProtectedRoute><ExaminationDoc /></ProtectedRoute>} />
+        <Route path="/diagnosis" element={<ProtectedRoute><Diagnosis /></ProtectedRoute>} />
+        <Route path="/procedure" element={<ProtectedRoute><Procedure /></ProtectedRoute>} />
+        <Route path="/otCounselling" element={<ProtectedRoute><OtCounselling /></ProtectedRoute>} />
+        <Route path="/prescribeMedi" element={<ProtectedRoute><PrescribeMedi /></ProtectedRoute>} />
+        <Route path="/CaseHistory" element={<ProtectedRoute><CaseHistory /></ProtectedRoute>} />
+        <Route path="/Draw" element={<ProtectedRoute><Draw /></ProtectedRoute>} />
+        <Route path="/ConsultList" element={<ProtectedRoute><ConsultList /></ProtectedRoute>} />
+        <Route path="/appointment" element={<ProtectedRoute><Appointment /></ProtectedRoute>} />
+        <Route path="/RegistrationForm" element={<ProtectedRoute><RegistrationForm /></ProtectedRoute>} />
+        <Route path="/patients" element={<ProtectedRoute><PatientsPage /></ProtectedRoute>} />
+        <Route path="/add-patient" element={<ProtectedRoute><AddPatient /></ProtectedRoute>} />
+        <Route path="/doctors" element={<ProtectedRoute><DoctorsPage /></ProtectedRoute>} />
+        <Route path="/pharmacy" element={<ProtectedRoute><PharmacyPage /></ProtectedRoute>} />
+        <Route path="/pharmacy/view-prescription" element={<ProtectedRoute><ViewPrescription /></ProtectedRoute>} />
+        <Route path="/pharmacy/view-unpaid" element={<ProtectedRoute><ViewUnpaid /></ProtectedRoute>} />
+        <Route path="/pharmacy/add-medicines" element={<ProtectedRoute><AddMedicines /></ProtectedRoute>} />
+        <Route path="/pharmacy/view-medicines" element={<ProtectedRoute><ViewMedicines /></ProtectedRoute>} />
+        <Route path="/doctors/add" element={<ProtectedRoute><AddDoctor /></ProtectedRoute>} />
+        <Route path="/doctors/:mode/:id?" element={<ProtectedRoute><AddDoctor /></ProtectedRoute>} />
+        <Route path="/bills" element={<ProtectedRoute><BillsPage /></ProtectedRoute>} />
+        <Route path="/opticals" element={<ProtectedRoute><OpticalsPage /></ProtectedRoute>} />
+        <Route path="/counsellor-desk" element={<ProtectedRoute><CounsellorDeskPage /></ProtectedRoute>} />
+        <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+        <Route path="/Consultation" element={<ProtectedRoute><CardsData /></ProtectedRoute>} />
+        <Route path="/WaitingApprovel" element={<ProtectedRoute><WaitingApprovel/></ProtectedRoute>}/>
+        <Route path="/InsuranceProvider" element={<ProtectedRoute><InsuranceProvider/></ProtectedRoute>}/>
+        <Route path="/ForMailing" element={<ProtectedRoute><ForMailing/></ProtectedRoute>}/>
+        <Route path="/SupplierTable" element={<ProtectedRoute><SupplierTable/></ProtectedRoute>}/>
+        <Route path="/AddSupplier" element={<ProtectedRoute><AddSupplier/></ProtectedRoute>}/>
+        <Route path="/InventoryMang" element={<ProtectedRoute><InventoryMang/></ProtectedRoute>}/>
+        <Route path="/InventoryItems" element={<ProtectedRoute><InventoryItems/></ProtectedRoute>}/>
+        <Route path="/OfferPage" element={<ProtectedRoute><OfferPage/></ProtectedRoute>}/>
+        <Route path="/AddOffer" element={<ProtectedRoute><AddOffer/></ProtectedRoute>}/>
+        <Route path="/Dialated" element={<ProtectedRoute><Dialated/></ProtectedRoute>}/>
+        <Route path="/Keratometry" element={<ProtectedRoute><Keratometry/></ProtectedRoute>}/>
+        <Route path="/Pachymetry" element={<ProtectedRoute><Pachymetry/></ProtectedRoute>}/>
+        <Route path="/Eye" element={<ProtectedRoute><Eye/></ProtectedRoute>}/>
+        <Route path="/CompanyPage" element={<ProtectedRoute><Company/></ProtectedRoute>}/>
+        <Route path="/AddCompany" element={<ProtectedRoute><AddCompany/></ProtectedRoute>}/>
+        <Route path="/UserPage" element={<ProtectedRoute><User/></ProtectedRoute>}/>
+        <Route path="/AddUser" element={<ProtectedRoute><AddUser/></ProtectedRoute>}/>
+        <Route path="/ConsultationBill" element={<ProtectedRoute><ConsultationBill/></ProtectedRoute>}/>
+        <Route path="/Addkit" element={<ProtectedRoute><AddKit/></ProtectedRoute>}/>
+        <Route path="/KitPage" element={<ProtectedRoute><KitPage/></ProtectedRoute>}/>
 
-     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-     <Route path="/ChangePassword" element={<ChangePassword/>}/>
+        <Route path="/profile" element={<ProtectedRoute><ProfileContainer/></ProtectedRoute>}/>
 
-     <Route path="/AddMedicinePage" element={<AddMedicinePage/>}/>
-      <Route path="/MedicinePage" element={<MedicinePage/>}/>
+       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+       <Route path="/ChangePassword" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>} />
+
+       <Route path="/AddMedicinePage" element={<ProtectedRoute><AddMedicinePage/></ProtectedRoute>} />
+        <Route path="/MedicinePage" element={<ProtectedRoute><MedicinePage/></ProtectedRoute>} />
 
       </Routes>
     </div>

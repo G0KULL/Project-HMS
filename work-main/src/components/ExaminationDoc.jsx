@@ -1,5 +1,3 @@
-/* FULL FIXED CODE — NO INFINITE UPDATE LOOP */
-
 import React, { useState, useEffect, useCallback } from "react";
 import Subima from "../assets/subima.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";

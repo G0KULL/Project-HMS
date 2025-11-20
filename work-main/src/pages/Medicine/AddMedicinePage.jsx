@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 export default function AddMedicine() {
   const navigate = useNavigate();
 
-  const companies = ["Sun Pharma", "Cipla"];
 
   const categories = [
     "Tablet",
@@ -16,18 +15,15 @@ export default function AddMedicine() {
   ];
 
   const [formData, setFormData] = useState({
-    companyName: "",
     name: "",
     genericName: "",
     category: "",
     description: "",
-
     strength: "",
     dosage: "",
     manufacturer: "",
     chemical: "",
     remarks: "",
-
     document: null, // 📌 NEW FIELD
   });
 
