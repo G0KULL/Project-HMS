@@ -97,9 +97,6 @@ const AddCompany = () => {
     if (!formData.abbreviation)
       newErrors.abbreviation = "Abbreviation is required";
 
-    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email))
-      newErrors.email = "Invalid email address";
-
     if (formData.website) {
       try {
         new URL(formData.website);
@@ -264,9 +261,6 @@ const AddCompany = () => {
               onChange={handleChange}
               disabled={viewOnly}
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email}</p>
-            )}
           </div>
 
           <div>

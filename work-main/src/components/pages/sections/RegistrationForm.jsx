@@ -58,7 +58,7 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
     valid: "",
     billingType: "",
     registrationDate: today,
-    visitDate: today,
+    visitDate: "",
     doctorId: "",
     company_id: userCompanyId, // Auto-assign company
     token:"",
@@ -80,7 +80,7 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
         mobile: appointment.mobile || "",
         alternateNumber: appointment.alternateNumber || "",
         email: appointment.email || "",
-        address1: appointment.address || "",
+        address1: appointment.address1 || "",
         aadhar: appointment.aadhar || "",
         city: appointment.city || "",
         state: appointment.state || "",
@@ -89,7 +89,7 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
         valid: appointment.valid || "",
         billingType: appointment.billingType || "",
         registrationDate: appointment.registrationDate || today,
-        visitDate: appointment.visitDate || today,
+        visitDate: appointment.visitDate || "",
         doctorId: appointment.doctor_id || "",
         company_id: userRole === "super_admin" ? appointment.company_id || "" : userCompanyId,
         token:appointment.token || "",
@@ -125,7 +125,7 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
     paymentStatus: "Pending",
     paymentMethod: "",
     amountPaid: "",
-    returnAmount: 0,
+    returnAmount: "",
     transactionId: "",
     transactionDate: "",
   });
@@ -170,40 +170,17 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
 
   const validateForm = () => {
     const newErrors = {};
-
-    if(!formData.company_id){ 
-      newErrors.company_id = "Company is required.";
-    }
-
-    if(!formData.doctorId){
-      newErrors.doctorId = "Doctor is required.";
-    }
-
-    if (!formData.patientType) {
-      newErrors.patientType = "Patient type is required.";
-    }
-
     if (!formData.fullName || formData.fullName.trim().length < 2) {
-      newErrors.fullName = "Name is required.";
+      newErrors.fullName = "Name is required and should be at least 2 characters.";
     }
     if (!formData.gender) {
       newErrors.gender = "Gender is required.";
     }
-
-    if(!formData.age || parseInt(formData.age, 10) <= 0){
-      newErrors.age = "Valid age is required.";
-    }
-
-    if(!formData.address1 || formData.address1.trim().length < 5){
-      newErrors.address1 = "Valid address is required.";
-    }
-
     if (!formData.mobile) {
-      newErrors.mobile = "Phone number is required";
+      newErrors.mobile = "Contact number is required.";
     } else if (!/^\+?\d{0,4}?[-\s()]?\d{6,15}$/.test(formData.mobile.replace(/\s+/g, ""))) {
-      newErrors.mobile = "Enter a valid phone number (with optional +country code, spaces, or dashes)";
+      newErrors.mobile = "Phone must be 10–15 digits.";
     }
-
     return newErrors;
   };
 
@@ -341,7 +318,7 @@ const handleSubmit = async (e) => {
   // Check if token exists
   if (!token) {
     alert("❌ You must be logged in to create an appointment.");
-    navigate("/");
+    navigate("/login");
     return;
   }
 
@@ -584,7 +561,7 @@ const handleSubmit = async (e) => {
 
     {/* Company */}
     <div className="flex flex-col">
-      <label className="font-medium text-gray-700 mb-1">Company:*</label>
+      <label className="font-medium text-gray-700 mb-1">Company:</label>
       {userRole === "super_admin" ? (
         <select
           name="company_id"
@@ -593,7 +570,6 @@ const handleSubmit = async (e) => {
           disabled={mode === "view"}
           className="border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400 bg-white w-full"
         >
-
           <option value="">-- Select Company --</option>
           {companies.map((c) => (
             <option key={c.id} value={c.id}>
@@ -608,13 +584,12 @@ const handleSubmit = async (e) => {
           readOnly
           className="border rounded-lg px-3 py-2 outline-none bg-gray-100 cursor-not-allowed w-full"
         />
-        
       )}
     </div>
 
     {/* Doctor */}
     <div className="flex flex-col">
-      <label className="font-medium text-gray-700 mb-1">Doctor:*</label>
+      <label className="font-medium text-gray-700 mb-1">Doctor:</label>
       {doctorsLoading ? (
         <div className="px-3 py-2">Loading...</div>
       ) : doctorsError ? (
@@ -686,9 +661,7 @@ const handleSubmit = async (e) => {
         })()}
         disabled={mode === "view"}
         bgColor="white"
-        error={errors.patientType}
       />
-      
 
       <TextInput
         label="Full Name*"
@@ -712,13 +685,11 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="Age*"
+        label="Age"
         name="age"
         value={formData.age}
         onChange={handleChange}
         readOnly={mode === "view"}
-        bgColor="white"
-        error={errors.age}
       />
     </div>
 
@@ -735,18 +706,16 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="Address*"
+        label="Address"
         name="address1"
         value={formData.address1}
         onChange={handleChange}
         readOnly={mode === "view"}
-        bgColor="white"
-        error={errors.address1}
       />
 
       <div className="relative w-full">
         <TextInput
-          label="Pin Code"
+          label="Pin Code*"
           name="pin"
           value={formData.pin}
           onChange={handleChange}
@@ -761,7 +730,7 @@ const handleSubmit = async (e) => {
       </div>
 
       <TextInput
-        label="City"
+        label="City*"
         name="city"
         value={formData.city}
         onChange={handleChange}
@@ -769,7 +738,7 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="State"
+        label="State*"
         name="state"
         value={formData.state}
         onChange={handleChange}
@@ -794,7 +763,7 @@ const handleSubmit = async (e) => {
       />
 
       <TextInput
-        label="Reference"
+        label="Reference*"
         name="reference"
         value={formData.reference}
         onChange={handleChange}
@@ -823,9 +792,17 @@ const handleSubmit = async (e) => {
         readOnly={mode === "view"}
       />
       <TextInput
-        label="Aadhar No"
+        label="Aadhar No*"
         name="aadhar"
         value={formData.aadhar}
+        onChange={handleChange}
+        readOnly={mode === "view"}
+      />
+
+      <TextInput
+        label="Valid Upto*"
+        name="valid"
+        value={formData.valid}
         onChange={handleChange}
         readOnly={mode === "view"}
       />

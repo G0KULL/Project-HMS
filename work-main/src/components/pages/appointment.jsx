@@ -27,7 +27,6 @@ export default function Appointment() {
   const role = localStorage.getItem("role");
   const companyId = localStorage.getItem("company_id");
   const loggedInUserId = parseInt(localStorage.getItem("user_id"));
-  
 
   // Fetch doctors
   useEffect(() => {
@@ -63,8 +62,7 @@ export default function Appointment() {
     fetchDoctors();
   }, [token, role, companyId, API_BASE, navigate]);
 
-  
-  // Fetch appointments
+  // Fetch appointments and separate expected patients
   useEffect(() => {
     const fetchAppointments = async () => {
       if (!token) return;
@@ -83,18 +81,41 @@ export default function Appointment() {
           company_name: appt.company?.name || "N/A",
         }));
 
-        // Filter appointments
+        // Filter appointments based on role
         let filteredAppointments = mapped;
         if (role === "doctor") {
-  filteredAppointments = mapped.filter(
-    (a) => Number(a.doctor_user_id) === loggedInUserId
-  );
-}
-console.log("Doctor logged in ID:", loggedInUserId);
-console.log("Appointments doctor_user_id:", mapped.map(a => a.doctor_user_id));
+          filteredAppointments = mapped.filter(
+            (a) => Number(a.doctor_user_id) === loggedInUserId
+          );
+        }
 
+        // Get today's date at midnight for accurate comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-        setAppointments(filteredAppointments);
+        // Separate appointments into history and expected
+        const history = [];
+        const expected = [];
+
+        filteredAppointments.forEach((appt) => {
+          const visitDate = new Date(appt.visit_date || appt.visitDate);
+          visitDate.setHours(0, 0, 0, 0);
+
+          // If visit date is tomorrow or later, it's expected
+          if (visitDate > today) {
+            expected.push(appt);
+          } else {
+            // Today or past dates go to history
+            history.push(appt);
+          }
+        });
+
+        console.log("Today:", today);
+        console.log("History appointments:", history.length);
+        console.log("Expected appointments:", expected.length);
+
+        setAppointments(history);
+        setExpectedPatients(expected);
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -105,31 +126,27 @@ console.log("Appointments doctor_user_id:", mapped.map(a => a.doctor_user_id));
     fetchAppointments();
   }, [token, role, companyId, loggedInUserId, API_BASE]);
 
-useEffect(() => {
-  if (!appointments || appointments.length === 0) return;
-
-  const today = new Date().toDateString(); // only date, no time
-
-  const expected = appointments.filter((appt) => {
-    const visitDateStr = appt.visitDate || appt.registrationDate; // correct field names
-    const visitDate = new Date(visitDateStr).toDateString();
-    return visitDate !== today;
-  });
-
-  console.log("Expected patients:", expected);
-  setExpectedPatients(expected);
-}, [appointments]);
-
-
-
   // View/Edit/Delete
-  const handleView = (appt) => navigate("/RegistrationForm", { state: { appointment: appt, mode: "view" } });
-  const handleEdit = (appt) => navigate("/RegistrationForm", { state: { appointment: appt, mode: "edit" } });
+  const handleView = (appt) =>
+    navigate("/RegistrationForm", {
+      state: { appointment: appt, mode: "view" },
+    });
+  const handleEdit = (appt) =>
+    navigate("/RegistrationForm", {
+      state: { appointment: appt, mode: "edit" },
+    });
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this appointment?")) return;
+    if (!window.confirm("Are you sure you want to delete this appointment?"))
+      return;
     try {
-      await axios.delete(`${API_BASE}/appointments/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API_BASE}/appointments/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      // Remove from both lists
       setAppointments((prev) => prev.filter((a) => a.id !== id));
+      setExpectedPatients((prev) => prev.filter((a) => a.id !== id));
+      
       alert("Appointment deleted successfully!");
     } catch (err) {
       console.error("Delete failed:", err);
@@ -146,57 +163,78 @@ useEffect(() => {
   const formatDate = (d) => (d ? new Date(d).toISOString().split("T")[0] : "");
 
   const filterByDate = (data) => {
-  return data.filter((appt) => {
-    // use correct field names
-    const apptDate = new Date(appt.visitDate || appt.registrationDate); 
-    const from = fromDate ? new Date(fromDate) : null;
-    const to = toDate ? new Date(toDate) : null;
+    return data.filter((appt) => {
+      // use correct field names
+      const apptDate = new Date(
+        appt.visit_date || appt.visitDate || appt.registrationDate
+      );
 
-    // normalize to compare only dates
-    const apptTime = new Date(apptDate).setHours(0, 0, 0, 0);
-    const fromTime = from ? from.setHours(0, 0, 0, 0) : null;
-    const toTime = to ? to.setHours(0, 0, 0, 0) : null;
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
 
-    if (fromTime && apptTime < fromTime) return false;
-    if (toTime && apptTime > toTime) return false;
+      // normalize to compare only dates
+      const apptTime = new Date(apptDate).setHours(0, 0, 0, 0);
+      const fromTime = from ? from.setHours(0, 0, 0, 0) : null;
+      const toTime = to ? to.setHours(0, 0, 0, 0) : null;
 
-    return true;
-  });
-};
+      if (fromTime && apptTime < fromTime) return false;
+      if (toTime && apptTime > toTime) return false;
 
+      return true;
+    });
+  };
 
   const handleSearch = () => {
     console.log("Search clicked:", { fromDate, toDate, searchQuery });
   };
 
-  const renderTable = (data, highlightStatus) => (
+  const renderTable = (data, tableName) => (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row gap-4 mb-4 w-full">
         <div className="flex-1">
           <label className="block text-sm mb-2 font-poppins">From Date</label>
-          <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="border rounded-full px-5 py-3 w-full" />
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            className="border rounded-full px-5 py-3 w-full"
+          />
         </div>
         <div className="flex-1">
           <label className="block text-sm mb-2 font-poppins">To Date</label>
-          <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="border rounded-full px-5 py-3 w-full" />
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            className="border rounded-full px-5 py-3 w-full"
+          />
         </div>
         <div className="flex items-end">
-          <button type="button" onClick={handleSearch} className="flex items-center justify-center p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700">
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="flex items-center justify-center p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700"
+          >
             <FaSearch />
           </button>
         </div>
       </div>
 
       <div className="overflow-x-auto w-full">
-        <table className="w-full text-left border-separate" style={{ borderSpacing: "0 0.75rem" }}>
-          <thead className="bg-[#7E4363]  text-white">
+        <table
+          className="w-full text-left border-separate"
+          style={{ borderSpacing: "0 0.75rem" }}
+        >
+          <thead className="bg-[#7E4363] text-white">
             <tr>
               <th className="px-4 py-3">S. No.</th>
               <th className="px-4 py-3">Patient Name</th>
               <th className="px-4 py-3">Age</th>
               <th className="px-4 py-3">Gender</th>
               <th className="px-4 py-3">Contact</th>
-              <th className="px-4 py-3">Appointment Date</th>
+              <th className="px-4 py-3">
+                {tableName === "expected" ? "Expected Visit Date" : "Appointment Date"}
+              </th>
               <th className="px-4 py-3">Doctor</th>
               <th className="px-4 py-3">Company</th>
               <th className="px-4 py-3">Status</th>
@@ -207,25 +245,56 @@ useEffect(() => {
             {filterByDate(data).length === 0 ? (
               <tr>
                 <td colSpan={10} className="text-center py-8 text-gray-500">
-                  No appointments found
+                  {tableName === "expected" 
+                    ? "No expected patients found" 
+                    : "No appointments found"}
                 </td>
               </tr>
             ) : (
               filterByDate(data).map((appt, idx) => (
-                <tr key={appt.id} className="border-b text-lg hover:bg-gray-100">
+                <tr
+                  key={appt.id}
+                  className="border-b text-lg hover:bg-gray-100"
+                >
                   <td className="px-4 py-3">{appt.id}</td>
                   <td className="px-4 py-3">{appt.fullName}</td>
                   <td className="px-4 py-3">{appt.age || "-"}</td>
                   <td className="px-4 py-3">{appt.gender}</td>
                   <td className="px-4 py-3">{appt.mobile || "-"}</td>
-                  <td className="px-4 py-3">{formatDate(appt.visit_date || appt.registrationDate)}</td>
+                  <td className="px-4 py-3">
+                    {formatDate(appt.visit_date || appt.visitDate)}
+                  </td>
                   <td className="px-4 py-3">{getDoctorName(appt.doctor_id)}</td>
                   <td className="px-4 py-3">{appt.company_name}</td>
-                  <td className="px-4 py-3">{appt.paymentStatus || "-"}</td>
+                  <td className="px-4 py-3">
+                    {tableName === "expected" ? (
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        Expected
+                      </span>
+                    ) : (
+                      appt.paymentStatus || "-"
+                    )}
+                  </td>
                   <td className="px-4 py-3 flex gap-2">
-                    <button className="text-blue-500 hover:text-blue-700" onClick={() => handleView(appt)} title="View"><FaEye size={16} /></button>
-                    <button className="bg-black p-2 rounded text-white hover:bg-gray-800" onClick={() => handleEdit(appt)}><FaEdit size={12} /></button>
-                    <button className="bg-red-600 p-2 rounded text-white hover:bg-red-700" onClick={() => handleDelete(appt.id)}><FaTrash size={12} /></button>
+                    <button
+                      className="text-blue-500 hover:text-blue-700"
+                      onClick={() => handleView(appt)}
+                      title="View"
+                    >
+                      <FaEye size={16} />
+                    </button>
+                    <button
+                      className="bg-black p-2 rounded text-white hover:bg-gray-800"
+                      onClick={() => handleEdit(appt)}
+                    >
+                      <FaEdit size={12} />
+                    </button>
+                    <button
+                      className="bg-red-600 p-2 rounded text-white hover:bg-red-700"
+                      onClick={() => handleDelete(appt.id)}
+                    >
+                      <FaTrash size={12} />
+                    </button>
                   </td>
                 </tr>
               ))
@@ -236,31 +305,67 @@ useEffect(() => {
     </div>
   );
 
-  if (loading) return <div className="p-6 text-center">Loading appointments...</div>;
-  if (error) return (
-    <div className="p-6 text-center text-red-500">
-      Error: {error}
-      <button onClick={() => window.location.reload()} className="ml-4 px-4 py-2 bg-blue-600 text-white rounded">Retry</button>
-    </div>
-  );
+  if (loading)
+    return <div className="p-6 text-center">Loading appointments...</div>;
+  if (error)
+    return (
+      <div className="p-6 text-center text-red-500">
+        Error: {error}
+        <button
+          onClick={() => window.location.reload()}
+          className="ml-4 px-4 py-2 bg-blue-600 text-white rounded"
+        >
+          Retry
+        </button>
+      </div>
+    );
 
   return (
     <div className="p-4 sm:p-6 bg-white rounded-xl space-y-6 max-w-full">
       <div className="flex flex-col sm:flex-row justify-center gap-10 mb-8 flex-wrap">
         {[
-          { key: "registration", label: "Registrations", icon: registrationIcon },
+          {
+            key: "registration",
+            label: "Registrations",
+            icon: registrationIcon,
+          },
           { key: "history", label: "Appointment History", icon: historyIcon },
-          { key: "expected", label: "Expected Patient List", icon: expectedIcon },
+          {
+            key: "expected",
+            label: "Expected Patient List",
+            icon: expectedIcon,
+          },
         ].map((tab) => (
-          <button key={tab.key} className={`px-4 sm:px-6 py-3 rounded-md font-poppins flex items-center gap-2 text-base sm:text-2xl whitespace-nowrap ${activeTab === tab.key ? "bg-[#7E4363] text-white" : "border border-[#CBDCEB] text-gray-700"}`} onClick={() => setActiveTab(tab.key)}>
-            <img src={tab.icon} alt={tab.label} className="w-5 h-5" /> {tab.label}
+          <button
+            key={tab.key}
+            className={`px-4 sm:px-6 py-3 rounded-md font-poppins flex items-center gap-2 text-base sm:text-2xl whitespace-nowrap ${
+              activeTab === tab.key
+                ? "bg-[#7E4363] text-white"
+                : "border border-[#CBDCEB] text-gray-700"
+            }`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            <img src={tab.icon} alt={tab.label} className="w-5 h-5" />{" "}
+            {tab.label}
           </button>
         ))}
       </div>
 
-      {activeTab === "registration" && <div className="rounded-xl p-4 sm:p-6 space-y-4 w-full"><RegistrationForm doctors={doctors} /></div>}
-      {activeTab === "history" && <div className="p-4 sm:p-6 rounded-xl bg-white w-full">{renderTable(appointments, "PAID")}</div>}
-      {activeTab === "expected" && <div className="p-4 sm:p-6 rounded-xl bg-white w-full">{renderTable(expectedPatients, "Expected")}</div>}
+      {activeTab === "registration" && (
+        <div className="rounded-xl p-4 sm:p-6 space-y-4 w-full">
+          <RegistrationForm doctors={doctors} />
+        </div>
+      )}
+      {activeTab === "history" && (
+        <div className="p-4 sm:p-6 rounded-xl bg-white w-full">
+          {renderTable(appointments, "history")}
+        </div>
+      )}
+      {activeTab === "expected" && (
+        <div className="p-4 sm:p-6 rounded-xl bg-white w-full">
+          {renderTable(expectedPatients, "expected")}
+        </div>
+      )}
     </div>
   );
 }
