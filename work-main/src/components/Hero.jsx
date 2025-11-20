@@ -20,6 +20,7 @@ const features = [
   {name: "Offers", icon: "/icons/OfferIcon.png", link: "/OfferPage"},
   {name: "Kitpage", icon: "/icons/kit.jpg", link: "/kitpage"},
   {name: "Profile", icon: "/icons/Profile.jpg", link: "/profile"},
+  {name: "Medicine", icon: "/icons/Medi.png", link: "/MedicinePage"},
 
 ];
 
@@ -28,17 +29,17 @@ const roleFeatures = {
     "Company", "User", "Appointment", "Consultation", "Optometry", 
     "Patients", "Doctors", "Pharmacy", "Bills", "Opticals", 
     "Insurance", "Counsellor Desk", "Supplier", "Inventory", 
-    "Analytics", "Offers","Profile","Kitpage"
+    "Analytics", "Offers","Profile","Kitpage","Medicine"
   ],
   admin: [
     "User", "Appointment", "Consultation", "Optometry", 
     "Patients", "Doctors", "Pharmacy", "Bills", "Opticals","Insurance", 
-    "Counsellor Desk", "Supplier", "Inventory", "Analytics", "Offers","Profile","Kitpage"
+    "Counsellor Desk", "Supplier", "Inventory", "Analytics", "Offers","Profile","Kitpage","Medicine"
   ],
   doctor: ["Appointment", "Consultation", "Optometry", "Patients","Profile","Kitpage"],
   optometrist: ["Optometry","Profile"],
   receptionist: ["Appointment", "Bills", "Patients","Profile"],
-  pharmacist: ["Pharmacy","Profile","Kitpage"],
+  pharmacist: ["Pharmacy","Profile","Kitpage","Medicine"],
   optician: ["Opticals","Profile"],
   counsellor: ["Counsellor Desk","Profile"],
   accountant: ["Bills", "Analytics", "Insurance","Profile"],
