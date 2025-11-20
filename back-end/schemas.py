@@ -50,8 +50,8 @@ class CompanyUpdate(BaseModel):
     website:Optional[str]= None
     email: Optional[EmailStr] = None
     status: Optional[str] = "ACTIVE"
-    admin:Optional[str]
-    gstnumber:str
+    admin:Optional[str] = None
+    gstnumber:Optional[str] = None
     
 
 class UserBase(BaseModel):
@@ -147,7 +147,7 @@ class AppointmentBase(BaseModel):
     returnAmount: Optional[int] = None
     transactionId: Optional[str] = None 
     transactionDate: Optional[date] = None 
-    visit_date: Optional[date] = None
+    visitDate: Optional[date] = None
     registrationDate: Optional[date] = None 
     company_id: int
     company:Optional[CompanyBase] = None
@@ -187,7 +187,7 @@ class AppointmentUpdate(BaseModel):
     returnAmount: Optional[int] = None 
     transactionId: Optional[str] = None 
     transactionDate: Optional[date] = None 
-    visit_date: Optional[date] = None
+    visitDate: Optional[date] = None
     registrationDate: Optional[date] = None 
     company_id: int
     company_name: Optional[str] = None

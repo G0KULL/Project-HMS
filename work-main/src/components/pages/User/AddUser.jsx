@@ -617,7 +617,7 @@ const AddUser = () => {
     onClick={handleToggleStatus}
     disabled={readOnly}
     className={`relative inline-flex h-6 w-12 items-center rounded-full transition ${
-      formData.status ? "bg-green-500" : "bg-gray-400"
+      formData.status ? "bg-[#7E4363]" : "bg-gray-400"
     }`}
   >
     <span

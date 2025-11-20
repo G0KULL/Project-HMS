@@ -599,7 +599,7 @@ def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
     # Coerce date fields
     appointment.dob = to_date_val(getattr(appointment, 'dob', None))
     reg_date = to_date_val(getattr(appointment, 'registrationDate', None) or getattr(appointment, 'registration_date', None))
-    visit_date = to_date_val(getattr(appointment, 'visitDate', None) or getattr(appointment, 'visit_date', None)) or date.today()
+    visitDate = to_date_val(getattr(appointment, 'visitDate', None) or getattr(appointment, 'visitDate', None)) or date.today()
     txn_date = to_date_val(getattr(appointment, 'transactionDate', None) or getattr(appointment, 'transaction_date', None))
 
     # Convert enums
@@ -672,7 +672,7 @@ def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
         valid=getattr(appointment, 'valid', None),
         billingType=getattr(appointment, 'billingType', None),
         registrationDate=reg_date,
-        visitDate=visit_date,
+        visitDate=visitDate,
         registrationFee=getattr(appointment, 'registrationFee', None),
         consultationFee=getattr(appointment, 'consultationFee', None),
         Discount=getattr(appointment, 'Discount', None),
