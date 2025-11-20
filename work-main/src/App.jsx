@@ -64,6 +64,9 @@ import ChangePassword from "./pages/ChangePd";
 import KitPage from "./components/pages/Kit/KitPage"
 import AddKit from "./components/pages/Kit/AddKit"
 
+import AddMedicinePage from "./pages/Medicine/AddMedicinePage";
+import MedicinePage from "./pages/Medicine/MedicinePage";
+
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/" />;
@@ -137,6 +140,9 @@ function App() {
 
      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
      <Route path="/ChangePassword" element={<ChangePassword/>}/>
+
+     <Route path="/AddMedicinePage" element={<AddMedicinePage/>}/>
+      <Route path="/MedicinePage" element={<MedicinePage/>}/>
 
       </Routes>
     </div>
