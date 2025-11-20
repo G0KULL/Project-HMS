@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 import models, schemas
 from database import get_db
-from auth import verify_password, create_access_token
+from auths import verify_password, create_access_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -36,7 +36,7 @@ def login_user(credentials: schemas.LoginRequest, db: Session = Depends(get_db))
             doctor_id = doctor.id
 
     # Create JWT token including doctor_id
-    access_token_expires = timedelta(minutes=60)
+    access_token_expires = timedelta(minutes=40000)
     access_token = create_access_token(
         data={
             "sub": user.email,

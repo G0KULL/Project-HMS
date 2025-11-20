@@ -4,7 +4,7 @@ from database import get_db
 import crud
 from schemas import UserCreate, UserUpdate, UserResponse
 from dependencies.roles import require_super_admin
-from auth import get_current_user,verify_password, get_password_hash
+from auths import get_current_user,verify_password, get_password_hash
 import models
 from pydantic import BaseModel
 

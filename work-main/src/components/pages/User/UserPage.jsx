@@ -9,7 +9,6 @@ const Company = () => {
   const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
   // ✅ Fetch users from FastAPI
-  // ✅ Fetch users from FastAPI
 const fetchUsers = async () => {
   setLoading(true);
   const token = localStorage.getItem("token");

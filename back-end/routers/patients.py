@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session,joinedload  # pyright: ignore[reportMissingIm
 import schemas, crud
 from database import get_db
 import models
-from auth import get_current_user
+from auths import get_current_user
 from models import Optometry
 
 router = APIRouter(prefix="/patients", tags=["Patients"])

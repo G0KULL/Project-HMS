@@ -5,7 +5,7 @@ import models, schemas, json
 from typing import List
 # from models import DoctorCertificate,DoctorImage
 from fastapi import HTTPException,status
-from auth import pwd_context
+from auths import pwd_context
 
 
 def calculate_age(dob: date) -> int:
@@ -143,6 +143,16 @@ def create_user(db: Session, user: schemas.UserCreate, photo=None, certificates=
 
     age = calculate_age(user.dob)
     hashed_password = pwd_context.hash(user.password)
+    
+    existing_phone = db.query(models.User).filter(
+        models.User.phone == user.phone
+    ).first()
+    if existing_phone:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Phone number {user.phone} is already registered to user: {existing_phone.name}"
+        )
+    
 
     db_user = models.User(
         name=user.name,

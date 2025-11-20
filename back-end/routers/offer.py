@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 import crud
 from schemas import OfferCreate, OfferUpdate, OfferResponse
-from auth import get_current_user
+from auths import get_current_user
 import models
 
 router = APIRouter(prefix="/offers", tags=["Offers"])

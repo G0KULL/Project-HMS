@@ -228,7 +228,7 @@ const ExaminationDoc = () => {
           });
           if (d.ok) {
             const doctor = await d.json();
-            setDoctorName(doctor.full_name || doctor.name || "-");
+            setDoctorName( doctor.name || "-");
           }
         }
       } catch (err) {
@@ -262,13 +262,20 @@ const ExaminationDoc = () => {
   return (
     <form onSubmit={handleSubmit}>
       <div className="max-w-8xl mx-auto p-6 space-y-6">
+        <h2 className="text-4xl md:text-3xl font-bold text-[#14416D]">Examination</h2>
 
         {/* Patient Header */}
         {patientData && (
           <div className="bg-[#F7DACD] p-6 rounded-xl text-xl">
             <p><b>Name:</b> {patientData.fullName || "-"}</p>
-            <p><b>Age:</b> {patientData.age || "-"}</p>
+            <p><b>Gender:</b> {patientData.gender || "-"}</p>
+            <p><b>Age:</b> {patientData.age || "-"} YEARS</p>
+            
             <p><b>MR Number:</b> {patientData.custom_id || patientData.id}</p>
+            <p>
+              <span className="font-bold">Visit Type:</span>{" "}
+              {patientData.patient_type || "GENERAL CONSULTATION"}
+            </p>
             <p><b>Doctor:</b> {doctorName}</p>
             {consultationId && (
               <p className="text-green-600 font-bold">

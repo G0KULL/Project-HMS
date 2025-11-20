@@ -65,7 +65,7 @@ export default function Patients() {
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-poppins">Patient Table</h1>
         <button
           onClick={() => navigate("/add-patient")}
-          className="bg-[#5A86C5] text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-medium text-sm sm:text-base"
+          className="bg-[#7E4363] text-white text-xl px-4 py-4 rounded-lg hover:bg-[#9b5778]"
         >
           + ADD PATIENT
         </button>
@@ -78,7 +78,7 @@ export default function Patients() {
           style={{ borderSpacing: "0 12px" }}
         >
           <thead>
-            <tr className="bg-gray-900 text-white">
+            <tr className="bg-[#7E4363] text-xl  text-white">
               <th className="px-2 py-4 sm:px-4 sm:py-6">Patient ID</th>
               <th className="px-2 py-4 sm:px-4 sm:py-6">Company</th>
               <th className="px-2 py-4 sm:px-4 sm:py-6">Name</th>
@@ -93,7 +93,7 @@ export default function Patients() {
             {patients.map((p) => (
               <tr
                 key={p.id}
-                className="bg-blue-100 border-b border-gray-200 text-sm sm:text-base md:text-lg"
+                className="border-b text-lg hover:bg-gray-100"
               >
                 <td className="px-2 py-4 sm:px-4 sm:py-6">{p.custom_id || p.id}</td>
                 <td className="px-6 py-4">{p.company_name || "—"}</td>

@@ -4,7 +4,7 @@ from database import get_db
 import crud
 from schemas import CompanyCreate, CompanyResponse, CompanyUpdate
 from dependencies.roles import require_super_admin
-from auth import get_current_user
+from auths import get_current_user
 import models
 
 router = APIRouter(prefix="/companies", tags=["Companies"])

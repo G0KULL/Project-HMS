@@ -89,10 +89,10 @@ const handleView = (kitId) => {
     <div className="max-w-8xl mx-auto p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">Medicine Kit Details</h2>
+        <h2 className="text-3xl font-bold text-gray-800">Medicine Kit Details</h2>
         <button
           onClick={handleAddKit}
-          className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-medium shadow-md transition-all"
+          className="bg-[#7E4363] text-white text-xl px-4 py-4 rounded-lg hover:bg-[#9b5778]"
         >
           + Add Kit
         </button>
@@ -101,7 +101,7 @@ const handleView = (kitId) => {
       {/* Table */}
       <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
         <table className="min-w-full text-lg bg-white border-collapse">
-          <thead className="bg-black text-white text-center">
+          <thead className="bg-[#7E4363] text-xl  text-white">
             <tr>
               <th className="p-3">Kit ID</th>
               <th className="p-3">Kit Name</th>
@@ -115,7 +115,7 @@ const handleView = (kitId) => {
               rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-b border-gray-200 text-center hover:bg-gray-50 transition-all"
+                  className="border-b text-lg hover:bg-gray-100"
                 >
                   <td className="p-3 text-gray-700 font-medium">{row.id}</td>
                   <td className="p-3 text-gray-700">{row.kitName}</td>

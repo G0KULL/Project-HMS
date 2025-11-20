@@ -6,7 +6,7 @@ from database import get_db
 import schemas, crud
 import os
 from uuid import uuid4
-from auth import get_current_user  # ✅ Import authentication dependency
+from auths import get_current_user  # ✅ Import authentication dependency
 import models
 
 router = APIRouter(prefix="/doctors", tags=["Doctors"])

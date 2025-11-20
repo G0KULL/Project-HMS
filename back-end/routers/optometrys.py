@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 import schemas, crud
-from auth import get_current_user  # assuming your auth.py provides this
+from auths import get_current_user  # assuming your auth.py provides this
 
 router = APIRouter(prefix="/optometrys", tags=["Optometrys"])
 
