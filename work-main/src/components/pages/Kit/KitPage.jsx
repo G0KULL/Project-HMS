@@ -22,7 +22,7 @@ export default function MedicineKitTable() {
         }
         const data = await res.json();
 
-        // 🧠 Optional: calculate total medicine quantity for display
+        // Optional: calculate total medicine quantity for display
         const processed = data.map((kit) => ({
           ...kit,
           quantity: kit.medicines
