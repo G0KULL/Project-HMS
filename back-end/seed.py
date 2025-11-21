@@ -8,7 +8,11 @@ Base.metadata.create_all(bind=engine)
 def seed_kits(db: Session):
     # Seed companies first
     if db.query(Company).count() == 0:
-        companies = [Company(name="Pfizer"), Company(name="Cipla")]
+        # Provide abbreviation because existing DB schema requires it
+        companies = [
+            Company(name="Pfizer", abbreviation="PFZ",address ="Ernakulam",phone ="1234567890"),
+            Company(name="Cipla", abbreviation="CPL",address ="Ernakulam",phone ="1234567891"),
+        ]
         db.add_all(companies)
         db.commit()
 
@@ -33,27 +37,28 @@ def seed_kits(db: Session):
 
     # Seed kits
     if db.query(Kit).count() == 0 and meds and companies:
+        # Avoid setting primary-key `id` manually; instead set `medicines` JSON
         kits = [
             Kit(
                 company_id=companies[0].id,
-                id=meds[0].id,
                 kitName="Fever Relief Kit",
                 reason="Used for fever and headache",
                 category="General",
+                medicines=[meds[0].id],
             ),
             Kit(
                 company_id=companies[0].id,
-                id=meds[1].id,
                 kitName="Infection Care Kit",
                 reason="Bacterial infection treatment",
                 category="Antibiotic",
+                medicines=[meds[1].id],
             ),
             Kit(
                 company_id=companies[0].id,
-                id=meds[3].id,
                 kitName="Stomach Care Kit",
                 reason="Acid reflux and indigestion relief",
                 category="Gastro",
+                medicines=[meds[3].id],
             ),
         ]
         try:

@@ -46,6 +46,7 @@ export default function AddDoctor() {
     experienceCertificate: [],
     password: "",
     staticIP: "",
+    prefix:"",
 
     availableDays: {
       Mon: { active: false, am: false, pm: false },
@@ -112,6 +113,7 @@ export default function AddDoctor() {
               ? data.languages.map((lang) => ({ label: lang, value: lang }))
               : [],
             staticIP: data.user?.staticIP,
+            prefix: data.prefix,
             years: data.years_of_experience,
             previous: data.previous_employer,
             Designation: data.designation,
@@ -380,7 +382,7 @@ const handleChange = (e) => {
       phone: formData.contactNumber,
       education: formData.education,
       address: formData.address,
-      staticIP: formData.staticIP,
+      
       user_type: "doctor",
       is_active: formData.status,
       password: formData.password,
@@ -389,6 +391,7 @@ const handleChange = (e) => {
 
     const doctorPayload = {
       name: formData.fullName,
+      prefix:formData.prefix,
       registration_no: formData.registrationNo,
       specialization: formData.specialization,
       license_no: formData.licenseNo,
@@ -768,6 +771,19 @@ const handleChange = (e) => {
               type="text"
               name="staticIP"
               value={formData.staticIP}
+              onChange={handleChange}
+              readOnly={isReadOnly}
+              className="w-full h-12 p-3 border rounded-lg focus:ring-2 focus:ring-[#7E4363] outline-none"
+            />
+          </div>
+
+          {/* Prefix */}
+          <div>
+            <label className="block mb-1 font-medium">Prefix for Token</label>
+            <input
+              type="text"
+              name="prefix"
+              value={formData.prefix}
               onChange={handleChange}
               readOnly={isReadOnly}
               className="w-full h-12 p-3 border rounded-lg focus:ring-2 focus:ring-[#7E4363] outline-none"

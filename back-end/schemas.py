@@ -314,6 +314,7 @@ class DoctorExpCertificate(DoctorCertificateBase):
 
 
 class DoctorBase(BaseModel):
+    prefix:Optional[str] = None
     registration_no: str
     consultation_fee: int
     license_no: str

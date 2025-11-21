@@ -12,27 +12,31 @@ export default function RegistrationForm({ doctors: parentDoctors, doctorsLoadin
   const token = localStorage.getItem("token");
   const [companies, setCompanies] = useState([]);
   const userRole = localStorage.getItem("role");
-  const [generatedToken, setGeneratedToken] = useState("");
+  const [tokenNumber, setTokenNumber] = useState("");
   const [pincodeLoading, setPincodeLoading] = useState(false);
 
-const generateToken = () => {
-  // Fetch the current counter from localStorage or start at 1
-  const currentCount = parseInt(localStorage.getItem("mn_token_counter") || "0", 10) + 1;
+const fetchToken = async (doctorId, date) => {
+  if (!doctorId || !date) return;
 
-  // Create a token with leading zeros (e.g., MN-01, MN-02, MN-10)
-  const newToken = `MN-${String(currentCount).padStart(2, "0")}`;
+  try {
+    const res = await fetch(`${API_BASE}/generate-token/${doctorId}?visit_date=${date}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-  // Save the updated counter back to localStorage
-  localStorage.setItem("mn_token_counter", currentCount.toString());
+    if (!res.ok) throw new Error(`Failed to fetch token: ${res.status}`);
 
-  // Update the component state
-  setGeneratedToken(newToken);
-  // Update formData with the token
-  setFormData((prev) => ({
-    ...prev,
-    token: newToken
-  }));
+    const data = await res.json();
+    setTokenNumber(data.token);
+    // ✅ Also update formData.token so backend receives it
+    setFormData(prev => ({ ...prev, token: data.token }));
+
+  } catch (err) {
+    console.error("Token fetch error:", err);
+    setTokenNumber(""); // clear token if API fails
+    setFormData(prev => ({ ...prev, token: "" }));
+  }
 };
+
 
   const role = localStorage.getItem("role");
 const loggedInUserId = parseInt(localStorage.getItem("user_id"));
@@ -379,7 +383,7 @@ const handleSubmit = async (e) => {
     visitDate: formData.visitDate,
     doctor_id: formData.doctorId ? parseInt(formData.doctorId) : null,
     patient_id: null,
-    token : generatedToken || formData.token,
+    token :formData.token,
     registrationFee: parseInt(billing.registrationFee) || 0,
     consultationFee: parseInt(billing.consultationFee) || 0,
     Discount: parseInt(billing.Discount) || 0,
@@ -522,6 +526,14 @@ const handleSubmit = async (e) => {
   useEffect(() => {
     setOffers(parentOffers ?? []);
   }, [parentOffers]);
+
+  useEffect(() => {
+  if (formData.doctorId && formData.visitDate) {
+    fetchToken(formData.doctorId, formData.visitDate);
+  }
+}, [formData.doctorId, formData.visitDate]);
+
+
 
   useEffect(() => {
     if (typeof parentOffers !== "undefined") return;
@@ -714,6 +726,18 @@ const handleSubmit = async (e) => {
         bgColor="white"
         error={errors.gender}
       />
+      
+      <div>
+  <label>Token Number</label>
+  <input
+    type="text"
+    value={tokenNumber}
+    disabled
+    className="border p-2 rounded w-full"
+  />
+</div>
+
+
 
       <TextInput
         label="Age*"

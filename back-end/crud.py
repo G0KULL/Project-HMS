@@ -609,8 +609,8 @@ def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
     # Coerce date fields
     appointment.dob = to_date_val(getattr(appointment, 'dob', None))
     reg_date = to_date_val(getattr(appointment, 'registrationDate', None) or getattr(appointment, 'registration_date', None))
-    visitDate = to_date_val(getattr(appointment, 'visitDate', None) or getattr(appointment, 'visitDate', None)) or date.today()
-    txn_date = to_date_val(getattr(appointment, 'transactionDate', None) or getattr(appointment, 'transaction_date', None))
+    visitDate = to_date_val(getattr(appointment, 'visitDate', None)) or date.today()
+    txn_date = to_date_val(getattr(appointment, 'transactionDate', None))
 
     # Convert enums
     try:
@@ -619,7 +619,7 @@ def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid enum value: {str(e)}")
 
-    # If patient_id not provided, try to find patient by phone/email
+    # If patient_id not provided, try to find patient
     if not appointment.patient_id:
         existing_patient = None
         if appointment.mobile:
@@ -658,6 +658,27 @@ def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
     # Ensure age is set
     age_val = appointment.age if getattr(appointment, 'age', None) is not None else calculate_age(appointment.dob)
 
+    # --------------------------------------------------------------------------------
+    # ✅ TOKEN NUMBER GENERATION
+    # --------------------------------------------------------------------------------
+    doctor = db.query(models.Doctor).filter(models.Doctor.id == appointment.doctor_id).first()
+    
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor not found")
+
+    prefix = doctor.prefix or "DR"  # default prefix if missing
+
+    # Count appointments for SAME doctor + SAME visitDate
+    count = db.query(models.Appointment).filter(
+        models.Appointment.doctor_id == appointment.doctor_id,
+        models.Appointment.visitDate == visitDate
+    ).count()
+
+    new_token_number = count + 1  # next token
+    token_number = f"{prefix}{new_token_number:02d}"   # MN01, MN02...
+
+    # --------------------------------------------------------------------------------
+
     # Create appointment DB object
     db_appointment = models.Appointment(
         patient_id=appointment.patient_id,
@@ -671,7 +692,7 @@ def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
         bloodGroup=getattr(appointment, 'bloodGroup', None),
         mobile=appointment.mobile,
         alternateNumber=getattr(appointment, 'alternateNumber', None),
-        email=None,  # DO NOT store email per appointment to avoid UNIQUE constraint
+        email=None,
         address1=getattr(appointment, 'address1', None),
         city=getattr(appointment, 'city', None),
         state=getattr(appointment, 'state', None),
@@ -693,14 +714,16 @@ def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
         returnAmount=getattr(appointment, 'returnAmount', None),
         transactionId=getattr(appointment, 'transactionId', None),
         transactionDate=txn_date,
+
+        # 🔥 Save token number
+        token_number=token_number
     )
 
     db.add(db_appointment)
     db.commit()
     db.refresh(db_appointment)
 
-
-    # Auto-create bill if totalAmount > 0
+    # Auto-create bill if needed
     if db_appointment.totalAmount > 0:
         bill_payload = schemas.BillCreate(
             created_from="appointment",
@@ -718,6 +741,7 @@ def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
         create_bill(db, bill_payload)
 
     return db_appointment
+
 
 
 

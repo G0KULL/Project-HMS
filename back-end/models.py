@@ -131,6 +131,8 @@ class Doctor(Base):
     issuing_council = Column(String, nullable=False)
     consultation_fee = Column(Integer, nullable=True)
     languages = Column(JSON, nullable=True)
+    prefix = Column(String, nullable=False)
+
 
     user = relationship("User", back_populates="doctor")
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
@@ -227,6 +229,8 @@ class Appointment(Base):
     amountPaid = Column(Integer, nullable=True)
     returnAmount = Column(Integer, nullable=True)
     transactionId = Column(String, nullable=True)
+    token_number = Column(String, nullable=True)
+
     transactionDate = Column(Date, default=datetime.date.today,nullable=True )
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
 
