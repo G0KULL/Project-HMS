@@ -19,7 +19,7 @@ const fetchToken = async (doctorId, date) => {
   if (!doctorId || !date) return;
 
   try {
-    const res = await fetch(`${API_BASE}/generate-token/${doctorId}?visit_date=${date}`, {
+    const res = await fetch(`${API_BASE}/generate-token/${doctorId}?visitDate=${date}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -65,7 +65,7 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
     visitDate: "",
     doctorId: "",
     company_id: userCompanyId, // Auto-assign company
-    token:"",
+    tokenNo:"",
   });
 
   const location = useLocation();
@@ -96,7 +96,7 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
         visitDate: appointment.visitDate || "",
         doctorId: appointment.doctor_id || "",
         company_id: userRole === "super_admin" ? appointment.company_id || "" : userCompanyId,
-        token:appointment.token || "",
+        tokenNo:appointment.tokenNo || "",
       });
 
       setBilling({
@@ -383,7 +383,7 @@ const handleSubmit = async (e) => {
     visitDate: formData.visitDate,
     doctor_id: formData.doctorId ? parseInt(formData.doctorId) : null,
     patient_id: null,
-    token :formData.token,
+    tokenNo :formData.tokenNo,
     registrationFee: parseInt(billing.registrationFee) || 0,
     consultationFee: parseInt(billing.consultationFee) || 0,
     Discount: parseInt(billing.Discount) || 0,
@@ -731,7 +731,8 @@ const handleSubmit = async (e) => {
   <label>Token Number</label>
   <input
     type="text"
-    value={tokenNumber}
+    name="tokenNo"
+    value={formData.tokenNo || tokenNumber}
     disabled
     className="border p-2 rounded w-full"
   />

@@ -592,6 +592,15 @@ def generate_appointment_id(db: Session):
 # ✅ Create Appointment
 def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
     from datetime import date
+    
+    existing_phone = db.query(models.Appointment).filter(
+        models.Appointment.mobile == appointment.mobile
+    ).first()
+    if existing_phone:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Phone number {appointment.mobile} is already registered to user: {existing_phone.fullName}"
+        )
 
     # Helper to coerce date-like fields
     def to_date_val(v):
