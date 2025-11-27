@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Text, Enum, JSON, Boolean, DateTime, func
+from sqlalchemy import Column, Integer, LargeBinary, String, Date, ForeignKey, Text, Enum, JSON, Boolean, DateTime, func
 from sqlalchemy.orm import relationship
 from database import Base
 import datetime
@@ -233,6 +233,10 @@ class Appointment(Base):
 
     transactionDate = Column(Date, default=datetime.date.today,nullable=True )
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    
+    # Status tracking fields
+    status = Column(String, default="On Lounge", nullable=False)  # On Lounge, At Optometry, At Consultation, At Pharmacy, Completed
+    status_timeline = Column(JSON, default=lambda: [], nullable=True)  # Store status changes with timestamps
 
     # FIXED: single patient_id column
     company = relationship("Company", back_populates="appointments")
@@ -550,7 +554,23 @@ class Medicine(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    description = Column(String, nullable=True)
+    genericname = Column(String)
+    entrydate = Column(Date)       
+    expireddate = Column(Date)      
+    category = Column(String)
+    description = Column(Text)
+    strength = Column(String)
+    dosage = Column(String)
+    manufacturer = Column(String)
+    chemical = Column(String)
+    remarks = Column(String)
+    document = Column(LargeBinary)
+
+    is_deleted = Column(Boolean,default=False)
+    deleted_at = Column(DateTime)
+    
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
 
     

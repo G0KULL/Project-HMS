@@ -15,12 +15,13 @@ import OtCounselling from "./components/OtCounselling";
 import PrescribeMedi from "./components/PrescribeMedi";
 import CaseHistory from "./components/CaseHistory";
 import Draw from "./components/Draw";
-import ConsultList from "./components/Pages/OptoConsultation/ConsultList";
-import RegistrationForm from "./components/pages/sections/RegistrationForm";  
-import Appointment from "./components/pages/appointment"
-import PatientsPage from "./components/pages/patients";
-import AddPatient from "./components/Pages/Sections/AddPatient";
-import DoctorsPage from "./components/pages/doctor";
+import ConsultList from "./pages/OptoConsultation/ConsultList";
+import RegistrationForm from "./pages/Appointment/RegistrationForm";
+import Appointment from "./pages/Appointment/appointment";
+import PatientsPage from "./pages/Patients/patients";
+import AddPatient from "./pages/Patients/AddPatient";
+import DoctorsPage from "./pages/Doctor/doctor";
+import AddDoctor from "./pages/Doctor/AddDoctor";
 import PharmacyPage from "./components/pages/pharmacy";
 import ViewPrescription from "./components/Pages/Sections/ViewPrescription";
 import ViewUnpaid from "./components/Pages/Sections/viewunpaid";
@@ -31,19 +32,19 @@ import OpticalsPage from "./components/Pages/opticals";
 import CounsellorDeskPage from "./components/Pages/counsellor-desk";
 // import Supplier from "./components/Pages/Supplier";
 import Inventory from "./components/Pages/inventory";
-import AddDoctor from "./components/Pages/Sections/AddDoctor";
+
 // import AddPatient from "./components/Pages/Sections/AddPatient";
 import CardsData from "./components/Pages/Consultation";
-import WaitingApprovel from "./components/Insurance/WaitingApprovel";
-import InsuranceProvider from "./components/Insurance/InsuranceProvider"
-import ForMailing from "./components/Insurance/ForMailing";
+import WaitingApprovel from "./pages/Insurance/WaitingApprovel";
+import InsuranceProvider from "./pages/Insurance/InsuranceProvider"
+import ForMailing from "./pages/Insurance/ForMailing";
 // import SupplierTable from "./components/Supplier/supplierTable";
-import SupplierTable from "./components/Supplier/SupplierTable";
-import AddSupplier from "./components/Supplier/AddSupplier";
-import InventoryMang from "./components/Inventory/InventoryManag";
-import InventoryItems from "./components/Inventory/InventoryItems";
-import OfferPage from "./components/Offers/OfferPage";
-import AddOffer from "./components/Offers/AddOffer";
+import SupplierTable from "./pages/Supplier/SupplierTable";
+import AddSupplier from "./pages/Supplier/AddSupplier";
+import InventoryMang from "./pages/Inventory/InventoryManag";
+import InventoryItems from "./pages/Inventory/InventoryItems";
+import OfferPage from "./pages/Offers/OfferPage";
+import AddOffer from "./pages/Offers/AddOffer";
 import SigninPage from "./pages/Signin";
 import Dialated from "./components/Dialated";
 import Keratometry from "./components/Keratometry";
@@ -52,20 +53,23 @@ import Eye from "./components/Eye";
 import ConsultationBill from "./components/ConsultationBill";
 // import CompanyPage from "./components/pages/Company/CompanyPage";
 
-import Company from "./components/pages/Company/CompanyPage";
-import AddCompany from "./components/pages/Company/AddCompany";
-import User from "./components/pages/User/UserPage";
-import AddUser from "./components/pages/User/AddUser";
+import Company from "./pages/Company/CompanyPage";
+import AddCompany from "./pages/Company/AddCompany";
+import User from "./pages/User/UserPage";
+import AddUser from "./pages/User/AddUser";
 
 import Dashboard from "./components/Dashboard";
-import ProfileContainer from "./components/ProfilePage/ProfileContainer";
+import ProfileContainer from "./pages/ProfilePage/ProfileContainer";
 import ChangePassword from "./pages/ChangePd";
 
-import KitPage from "./components/pages/Kit/KitPage"
-import AddKit from "./components/pages/Kit/AddKit"
+import KitPage from "./pages/Kit/KitPage"
+import AddKit from "./pages/Kit/AddKit"
 
 import AddMedicinePage from "./pages/Medicine/AddMedicinePage";
 import MedicinePage from "./pages/Medicine/MedicinePage";
+
+import AddOpticals from "./pages/Opticals/AddOpticals";
+import OpticalPage from "./pages/opticals/OpticalPage";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
@@ -143,6 +147,9 @@ function App() {
 
        <Route path="/AddMedicinePage" element={<ProtectedRoute><AddMedicinePage/></ProtectedRoute>} />
         <Route path="/MedicinePage" element={<ProtectedRoute><MedicinePage/></ProtectedRoute>} />
+
+        <Route path="/AddOpticals" element={<ProtectedRoute><AddOpticals/></ProtectedRoute>} />
+        <Route path="/OpticalPage" element={<ProtectedRoute><OpticalPage/></ProtectedRoute>} />
 
       </Routes>
     </div>

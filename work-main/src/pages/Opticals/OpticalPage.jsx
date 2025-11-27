@@ -1,36 +1,34 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2, Plus, Eye } from "lucide-react";
 
-export default function MedicinePage() {
+export default function OpticalPage() {
   const navigate = useNavigate();
 
-  const [medicines, setMedicines] = useState([]);
+  // Sample data (replace with API later)
+  const [opticals, setOpticals] = useState([
+    {
+      id: 1,
+      name: "39098 Glasses",
+      category: "Lenses",
+      brand: "RayBan",
+    },
+    {
+      id: 2,
+      name: "7016 Frames",
+      category: "Frames",
+      brand: "Silhouette",
+    },
+  ]);
+
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
 
-  // Fetch medicines from API
-  useEffect(() => {
-    const fetchMedicines = async () => {
-      try {
-        const res = await fetch("http://127.0.0.1:8000/medicines/");
-        if (!res.ok) throw new Error("Failed to fetch medicines");
-        const data = await res.json();
-        setMedicines(data);
-      } catch (err) {
-        console.error(err);
-        alert("Error fetching medicines");
-      }
-    };
-
-    fetchMedicines();
-  }, []);
-
   // Filter Logic
-  const filteredMedicines = medicines.filter((m) => {
+  const filteredMedicines = opticals.filter((m) => {
     const matchSearch =
       m.name.toLowerCase().includes(search.toLowerCase()) ||
-      (m.genericname && m.genericname.toLowerCase().includes(search.toLowerCase()));
+      m.genericName.toLowerCase().includes(search.toLowerCase());
 
     const matchCategory = filterCategory ? m.category === filterCategory : true;
 
@@ -38,78 +36,45 @@ export default function MedicinePage() {
   });
 
   // Delete function
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this medicine?")) {
-      try {
-        const res = await fetch(`http://127.0.0.1:8000/medicines/${id}`, {
-          method: "DELETE",
-        });
-        if (!res.ok) throw new Error("Failed to delete medicine");
-
-        setMedicines(medicines.filter((m) => m.id !== id));
-      } catch (err) {
-        console.error(err);
-        alert("Error deleting medicine");
-      }
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this item?")) {
+      setOpticals(opticals.filter((m) => m.id !== id));
     }
   };
 
   // View function
   const handleView = (medicine) => {
-    navigate("/AddMedicinePage", { state: { medicine } });
+    navigate("/ViewMedicine", { state: { medicine } });
   };
 
   // Edit function
   const handleEdit = (medicine) => {
-    navigate("/AddMedicinePage", { state: { medicine } });
+    navigate("/AddOpticals", { state: { medicine } });
   };
 
   return (
     <div className="max-w-8xl mx-auto p-8 mt-10">
       {/* Page Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold">Medicine List</h2>
+        <h2 className="text-3xl font-bold">Opticals List</h2>
 
         <button
-          onClick={() => navigate("/AddMedicinePage")}
-          className="bg-[#7E4363] text-white px-4 py-2 rounded-xl flex items-center gap-2"
+          onClick={() => navigate("/AddOpticals")}
+          className="bg-[#7E4363]  text-white px-4 py-2 rounded-xl flex items-center gap-2"
         >
-          <Plus size={18} /> Add Medicine
+          <Plus size={18} /> Add Opticals
         </button>
-      </div>
-
-      {/* Search & Filter */}
-      <div className="flex gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search medicine..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="p-2 rounded-full w-1/2 border border-gray-300"
-        />
-
-        <select
-          className="p-2 rounded-full border border-gray-300"
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          <option value="Tablet">Tablet</option>
-          <option value="Drop">Drop</option>
-          <option value="Ointment">Ointment</option>
-          <option value="Injection">Injection</option>
-        </select>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow-md">
         <table className="min-w-full">
-          <thead className="bg-[#7E4363] h-16 text-lg text-white text-left">
+          <thead className=" bg-[#7E4363] h-16 text-lg text-white text-left">
             <tr>
               <th className="px-4 py-2">ID</th>
-              <th className="px-4 py-2">Medicine</th>
-              <th className="px-4 py-2">Generic</th>
+              <th className="px-4 py-2">Item Name</th>
               <th className="px-4 py-2">Category</th>
+              <th className="px-4 py-2">Brand</th>
               <th className="px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
@@ -118,7 +83,7 @@ export default function MedicinePage() {
             {filteredMedicines.length === 0 ? (
               <tr>
                 <td colSpan="8" className="text-center py-4 text-gray-500">
-                  No medicines found
+                  No Items found
                 </td>
               </tr>
             ) : (
@@ -126,10 +91,13 @@ export default function MedicinePage() {
                 <tr key={m.id} className="border-b hover:bg-gray-100">
                   <td className="px-4 py-2">{m.id}</td>
                   <td className="px-4 py-2">{m.name}</td>
-                  <td className="px-4 py-2">{m.genericname}</td>
                   <td className="px-4 py-2">{m.category}</td>
+                  <td className="px-4 py-2">{m.brand}</td>
+
                   <td className="px-4 py-2 text-center">
                     <div className="flex justify-center gap-4">
+
+                      {/* View Button */}
                       <button
                         onClick={() => handleView(m)}
                         className="text-gray-600 hover:text-gray-900"
@@ -144,12 +112,14 @@ export default function MedicinePage() {
                         <Pencil size={20} />
                       </button>
 
+                    
                       <button
                         onClick={() => handleDelete(m.id)}
                         className="text-red-600 hover:text-red-800"
                       >
                         <Trash2 size={20} />
                       </button>
+
                     </div>
                   </td>
                 </tr>

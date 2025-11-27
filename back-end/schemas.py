@@ -198,10 +198,14 @@ class Appointment(AppointmentBase):
     custom_id: Optional[str] = None
     patient_id: Optional[int] = None
     doctor_id: Optional[int] = None
-    
+    status: Optional[str] = None
+    status_timeline: Optional[list] = None
 
     class Config:
         orm_mode = True
+
+class AppointmentStatusUpdate(BaseModel):
+    status: str  # On Lounge, At Optometry, At Consultation, At Pharmacy, Completed
 
 class PatientBase(BaseModel):
     name: str
@@ -643,22 +647,21 @@ class OtCounsellingItem(BaseModel):
     remarks: Optional[str] = None
     consent: Optional[bool] = None
     
-    
 # -----------------------------------------------------------
 # Medicine Schema (minimal, used in relation)
 # -----------------------------------------------------------
 class MedicineBase(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
+    name: str
+    genericname: Optional[str] = None
+    entrydate: date     
+    expireddate: date
     category: Optional[str] = None
+    description: Optional[str] = None
+    strength: Optional[str] = None
     dosage: Optional[str] = None
-    frequency: Optional[str] = None
-    duration: Optional[str] = None
-    route: Optional[str] = None
-    medQuantity: Optional[str] = None
-    start_date: Optional[date] = None
-    end_date:Optional[date] = None
-    
+    manufacturer: Optional[str] = None
+    chemical: Optional[str] = None
+    remarks: Optional[str] = None
 
 class MedicineResponse(MedicineBase):
     id: int

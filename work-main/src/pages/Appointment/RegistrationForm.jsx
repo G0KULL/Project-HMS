@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import StatusTracker from "./StatusTracker";
 
 export default function RegistrationForm({ doctors: parentDoctors, doctorsLoading: parentDoctorsLoading, doctorsError: parentDoctorsError, offers: parentOffers,readOnlyDoctor = false, }) {
   const today = new Date().toISOString().split("T")[0];
@@ -99,20 +100,72 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
         tokenNo:appointment.tokenNo || "",
       });
 
-      setBilling({
-        registrationFee: appointment.registrationFee || "",
-        consultationFee: appointment.consultationFee || "",
-        Discount: appointment.Discount || "",
-        totalAmount: appointment.totalAmount || 0,
-        paymentStatus: appointment.paymentStatus || "Pending",
-        paymentMethod: appointment.paymentMethod || "",
-        amountPaid: appointment.amountPaid || "",
-        returnAmount: appointment.returnAmount || "",
-        transactionId: appointment.transactionId || "",
-        transactionDate: appointment.transactionDate || "",
-      });
+      // Check if consultation is complete by fetching optometry data
+      const checkConsultationStatus = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/optometrys/?appointment_id=${appointment.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const optometryData = await res.json();
+          
+          // If optometry exists for this appointment, patient has done consultation
+          const isConsulted = Array.isArray(optometryData) && optometryData.length > 0;
+          const paymentStatusValue = isConsulted ? "Consulted" : "Not Consulted";
+          
+          setBilling({
+            registrationFee: appointment.registrationFee || "",
+            consultationFee: appointment.consultationFee || "",
+            Discount: appointment.Discount || "",
+            totalAmount: appointment.totalAmount || 0,
+            paymentStatus: paymentStatusValue,
+            paymentMethod: appointment.paymentMethod || "",
+            amountPaid: appointment.amountPaid || "",
+            returnAmount: appointment.returnAmount || "",
+            transactionId: appointment.transactionId || "",
+            transactionDate: appointment.transactionDate || "",
+          });
+        } catch (error) {
+          console.error("Error checking consultation status:", error);
+          // Fallback to default if API fails
+          setBilling({
+            registrationFee: appointment.registrationFee || "",
+            consultationFee: appointment.consultationFee || "",
+            Discount: appointment.Discount || "",
+            totalAmount: appointment.totalAmount || 0,
+            paymentStatus: appointment.paymentStatus || "",
+            paymentMethod: appointment.paymentMethod || "",
+            amountPaid: appointment.amountPaid || "",
+            returnAmount: appointment.returnAmount || "",
+            transactionId: appointment.transactionId || "",
+            transactionDate: appointment.transactionDate || "",
+          });
+        }
+      };
+
+      checkConsultationStatus();
     }
-  }, [appointment]);
+  }, [appointment, API_BASE, token]);
+
+  // Fetch appointment status and timeline
+  useEffect(() => {
+    if (appointment?.id) {
+      const fetchAppointmentStatus = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/appointments/${appointment.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setAppointmentStatus(data.status || "On Lounge");
+            setStatusTimeline(data.status_timeline || []);
+          }
+        } catch (err) {
+          console.error("Error fetching appointment status:", err);
+        }
+      };
+      fetchAppointmentStatus();
+    }
+  }, [appointment?.id, API_BASE, token]);
 
   const [uhidExists, setUhidExists] = useState(false);
   const [errors, setErrors] = useState({});
@@ -121,12 +174,14 @@ const loggedInUserId = parseInt(localStorage.getItem("user_id"));
   const [doctorsError, setDoctorsError] = useState(parentDoctorsError ?? null);
   const [profileImage, setProfileImage] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [appointmentStatus, setAppointmentStatus] = useState("On Lounge");
+  const [statusTimeline, setStatusTimeline] = useState([]);
   const [billing, setBilling] = useState({
     registrationFee: "",
     consultationFee: "",
     Discount: "",
     totalAmount: 0,
-    paymentStatus: "Pending",
+    paymentStatus: "",
     paymentMethod: "",
     amountPaid: "",
     returnAmount: 0,
@@ -441,6 +496,23 @@ const handleSubmit = async (e) => {
 
     const updatedAppointment = await response.json();
     alert(`✅ Appointment ${isEdit ? "updated" : "created"} successfully!`);
+    
+    // Set initial status to "On Lounge" if new appointment
+    if (!isEdit && updatedAppointment.id) {
+      try {
+        await fetch(`${API_BASE}/appointments/${updatedAppointment.id}/status`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: "On Lounge" }),
+        });
+      } catch (statusErr) {
+        console.error("Error setting initial status:", statusErr);
+      }
+    }
+    
     setSuccess(true);
     navigate("/appointment")
 
@@ -888,6 +960,21 @@ const handleSubmit = async (e) => {
       options={["Cash", "Credit Card", "Debit Card", "UPI", "Net Banking"]}
       disabled={mode === "view"}
     />
+
+    {/* <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-300">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Consultation Status</label>
+        <span className={`inline-block px-4 py-2 rounded-lg font-semibold text-white ${
+          billing.paymentStatus === "Consulted" 
+            ? "bg-green-500" 
+            : billing.paymentStatus === "Not Consulted"
+            ? "bg-red-500"
+            : "bg-yellow-500"
+        }`}>
+          {billing.paymentStatus}
+        </span>
+      </div>
+    </div> */}
   </div>
 
   {/* 🔹 Conditional Payment Fields */}
@@ -945,6 +1032,13 @@ const handleSubmit = async (e) => {
     </div>
   )}
 </div>
+
+    {/* ================== Status Tracker (reusable) ================== */}
+    {appointment?.id && (
+      <div className="mt-8">
+        <StatusTracker appointmentId={appointment.id} />
+      </div>
+    )}
 
     {/* 🔹 Buttons */}
     <div className="flex justify-end gap-4 mt-6">

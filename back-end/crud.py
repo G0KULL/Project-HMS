@@ -265,7 +265,8 @@ def create_doctor(db: Session, doctor: schemas.DoctorCreate, photo=None, certifi
             is_active=doctor.status,
             phone=db_user.phone,
             email=db_user.email,
-            company_id=db_user.company_id
+            company_id=db_user.company_id,
+            prefix=doctor.prefix,
         )
         db.add(db_doctor)
         db.commit()
@@ -467,6 +468,7 @@ def create_doctor_from_payload(db: Session, payload: dict):
             phone=pick("phone", "contact_number", "contactNumber", "contact") or user.phone,
             email=pick("email", "email_id") or user.email,
             company_id=user.company_id,
+            prefix=pick("prefix") or "DR",
         )
         db.add(db_doctor)
         db.commit()
@@ -1019,7 +1021,42 @@ def create_optometry(db: Session, data: schemas.OptometryCreate, current_user):
         # Update the appointment with optometry_id
         if data.appointment_id and appointment:
             appointment.optometryId = new_opt.id
-            db.commit()
+            # Also set appointment status to OPTOMETRY and append timeline
+            try:
+                if not appointment.status_timeline:
+                    appointment.status_timeline = []
+                elif isinstance(appointment.status_timeline, str):
+                    try:
+                        appointment.status_timeline = json.loads(appointment.status_timeline)
+                    except Exception:
+                        appointment.status_timeline = []
+
+                current_time = datetime.utcnow().isoformat()
+                # mark previous entry time_taken
+                if appointment.status_timeline and len(appointment.status_timeline) > 0:
+                    last_entry = appointment.status_timeline[-1]
+                    try:
+                        start_time = datetime.fromisoformat(last_entry.get("timestamp"))
+                        end_time = datetime.utcnow()
+                        secs = int((end_time - start_time).total_seconds())
+                        last_entry["time_taken_seconds"] = secs
+                        last_entry["time_taken_minutes"] = round(secs / 60, 2)
+                    except Exception:
+                        pass
+
+                appointment.status_timeline.append({
+                    "status_code": "OPTOMETRY",
+                    "status_label": "At Optometry",
+                    "timestamp": current_time,
+                    "changed_by": current_user.name or current_user.email,
+                })
+                appointment.status = "OPTOMETRY"
+                db.commit()
+            except Exception:
+                db.rollback()
+                # We don't want optometry creation to fail because of status logging
+                db.add(appointment)
+                db.commit()
 
         return new_opt
 
@@ -1189,6 +1226,44 @@ def create_consultation(db: Session, data: schemas.ConsultationCreate, current_u
         db.add(new_consult)
         db.commit()
         db.refresh(new_consult)
+
+        # Update linked appointment status to CONSULTATION (if any)
+        try:
+            appt_id = consult_data.get("appointment_id")
+            if appt_id:
+                appointment = db.query(models.Appointment).filter(models.Appointment.id == appt_id).first()
+                if appointment:
+                    if not appointment.status_timeline:
+                        appointment.status_timeline = []
+                    elif isinstance(appointment.status_timeline, str):
+                        try:
+                            appointment.status_timeline = json.loads(appointment.status_timeline)
+                        except Exception:
+                            appointment.status_timeline = []
+
+                    current_time = datetime.utcnow().isoformat()
+                    if appointment.status_timeline and len(appointment.status_timeline) > 0:
+                        last_entry = appointment.status_timeline[-1]
+                        try:
+                            start_time = datetime.fromisoformat(last_entry.get("timestamp"))
+                            end_time = datetime.utcnow()
+                            secs = int((end_time - start_time).total_seconds())
+                            last_entry["time_taken_seconds"] = secs
+                            last_entry["time_taken_minutes"] = round(secs / 60, 2)
+                        except Exception:
+                            pass
+
+                    appointment.status_timeline.append({
+                        "status_code": "CONSULTATION",
+                        "status_label": "At Consultation",
+                        "timestamp": current_time,
+                        "changed_by": current_user.name or current_user.email,
+                    })
+                    appointment.status = "CONSULTATION"
+                    db.commit()
+        except Exception:
+            db.rollback()
+
         return new_consult
 
     except Exception as e:

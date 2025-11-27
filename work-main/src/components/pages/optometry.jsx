@@ -313,6 +313,27 @@ const [activeTab, setActiveTab] = useState("Complaints");
 
   const token = localStorage.getItem("token");
 
+  // Update appointment status to "At Optometry" when component mounts
+  useEffect(() => {
+    if (appointment?.id && !viewOnly) {
+      const updateStatus = async () => {
+        try {
+          await fetch(`${API_BASE}/appointments/${appointment.id}/status`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ status: "At Optometry" }),
+          });
+        } catch (err) {
+          console.error("Error updating status to At Optometry:", err);
+        }
+      };
+      updateStatus();
+    }
+  }, [appointment?.id, viewOnly]);
+
   useEffect(() => {
   const fetchDoctorName = async () => {
     if (!appointment?.doctor_id) return;

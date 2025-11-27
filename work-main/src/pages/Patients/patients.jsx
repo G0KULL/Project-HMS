@@ -85,7 +85,6 @@ export default function Patients() {
               <th className="px-2 py-4 sm:px-4 sm:py-6">Gender</th>
               <th className="px-2 py-4 sm:px-4 sm:py-6">Age</th>
               <th className="px-2 py-4 sm:px-4 sm:py-6">Contact No.</th>
-              <th className="px-2 py-4 sm:px-4 sm:py-6">Blood Group</th>
               <th className="px-2 py-4 sm:px-4 sm:py-6">Actions</th>
             </tr>
           </thead>
@@ -101,7 +100,6 @@ export default function Patients() {
                 <td className="px-2 py-4 sm:px-4 sm:py-6">{p.gender}</td>
                 <td className="px-2 py-4 sm:px-4 sm:py-6">{p.age}</td>
                 <td className="px-2 py-4 sm:px-4 sm:py-6">{p.phone_number}</td>
-                <td className="px-2 py-4 sm:px-4 sm:py-6">{p.blood_group}</td>
                 <td className="px-2 py-3 sm:px-4 sm:py-6 flex justify-center gap-3">
                   <button
                     className="text-blue-500 hover:text-blue-700"

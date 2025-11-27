@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom"; 
 import { X } from "lucide-react";
-import Proimg from "../../../assets/Proimg.png";
+// import Proimg from "../../../assets/Proimg.png";
+import Proimg from "../../assets/Proimg.png";
 
 const OptoProfile = ({ patient, onClose }) => {
   const navigate = useNavigate();

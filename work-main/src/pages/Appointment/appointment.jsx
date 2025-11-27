@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import RegistrationForm from "./sections/RegistrationForm";
+import RegistrationForm from "./RegistrationForm";
 import { FaEdit, FaTrash, FaSearch, FaEye } from "react-icons/fa";
 import registrationIcon from "../../assets/registration.svg";
 import historyIcon from "../../assets/history.svg";
@@ -8,7 +8,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function Appointment() {
-  const [activeTab, setActiveTab] = useState("registration");
+  // Load activeTab from localStorage
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("activeTab") || "registration";
+  });
+
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,6 +25,11 @@ export default function Appointment() {
 
   const navigate = useNavigate();
   const API_BASE = import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8000";
+
+  // Save activeTab to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
 
   // Get user info from localStorage
   const token = localStorage.getItem("token");
@@ -164,7 +173,6 @@ export default function Appointment() {
 
   const filterByDate = (data) => {
     return data.filter((appt) => {
-      // use correct field names
       const apptDate = new Date(
         appt.visit_date || appt.visitDate || appt.registrationDate
       );
@@ -172,7 +180,6 @@ export default function Appointment() {
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
 
-      // normalize to compare only dates
       const apptTime = new Date(apptDate).setHours(0, 0, 0, 0);
       const fromTime = from ? from.setHours(0, 0, 0, 0) : null;
       const toTime = to ? to.setHours(0, 0, 0, 0) : null;
